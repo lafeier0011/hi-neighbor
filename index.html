@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邻趣集市 - UI 设计稿导航</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'PingFang SC', sans-serif; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+h1 { font-size: 24px; color: #FF6B35; margin-bottom: 8px; }
+p { color: #999; margin-bottom: 30px; font-size: 14px; }
+.pages { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; }
+.page-link { display: block; background: #fff; border-radius: 14px; padding: 20px; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
+.page-link:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.page-num { font-size: 12px; color: #FF6B35; font-weight: 600; margin-bottom: 4px; }
+.page-title { font-size: 16px; font-weight: 600; color: #333; }
+.page-desc { font-size: 13px; color: #999; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>🏘️ 邻趣集市 Hi-Neighbor</h1>
+<p>MVP 版本 UI 设计稿预览</p>
+<div class="pages">
+  <a class="page-link" href="./home.html">
+    <div class="page-num">PAGE ①</div>
+    <div class="page-title">🏠 首页 — 商品浏览 & 搜索</div>
+    <div class="page-desc">问候语 · 定位 · 搜索 · 分类 · 商品双列瀑布</div>
+  </a>
+  <a class="page-link" href="./publish.html">
+    <div class="page-num">PAGE ②</div>
+    <div class="page-title">📝 发布页 — 发布商品 / 拼团</div>
+    <div class="page-desc">类型切换 · 图片上传 · 价格 · 分类 · 地点</div>
+  </a>
+  <a class="page-link" href="./groupbuy.html">
+    <div class="page-num">PAGE ③</div>
+    <div class="page-title">🎯 拼团页 — 社区拼团服务</div>
+    <div class="page-desc">进度条 · 头像墙 · 倒计时 · 参团按钮</div>
+  </a>
+  <a class="page-link" href="./announce-profile.html">
+    <div class="page-num">PAGE ④⑤</div>
+    <div class="page-title">📢 公告页 + 👤 个人中心</div>
+    <div class="page-desc">社区公告列表 · 数据统计 · 微信登录 · 菜单</div>
+  </a>
+</div>
+</body>
+</html>
