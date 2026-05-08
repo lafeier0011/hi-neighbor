@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邻趣集市 — 管理后台 UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f8f5f1;
+  --border: #ebe4da;
+  --text: #2d2a26;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999;
+  --accent: #c2703e;
+  --accent-light: #fdf5ee;
+  --success: #3a7d5c;
+  --success-light: #e8f5ee;
+  --error: #c0392b;
+  --error-light: #fde8e8;
+  --warn: #d4a017;
+  --warn-light: #fdf6e3;
+  --info: #2c5f8a;
+  --info-light: #e8f0f8;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --font: 'Outfit', -apple-system, 'PingFang SC', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--surface); color: var(--text); }
+
+/* Layout */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 220px; background: var(--text); color: #fff; padding: 24px 0;
+  display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0;
+}
+.sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-brand .name { font-size: 16px; font-weight: 700; }
+.sidebar-brand .sub { font-size: 11px; opacity: 0.4; margin-top: 4px; }
+.sidebar-nav { flex: 1; padding-top: 16px; }
+.nav-group { margin-bottom: 8px; }
+.nav-group-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.3; padding: 8px 20px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6); cursor: pointer;
+  transition: all 0.15s;
+}
+.nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+.nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
+.nav-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; opacity: 0.3; }
+
+/* Main */
+.main { margin-left: 220px; flex: 1; }
+.topbar {
+  height: 56px; background: var(--bg); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+}
+.topbar-title { font-size: 15px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-secondary); }
+.topbar-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); }
+
+.content { padding: 24px; }
+
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--bg); border-radius: var(--radius); padding: 20px;
+  border: 1px solid var(--border);
+}
+.stat-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+.stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+.stat-change { font-size: 11px; color: var(--success); margin-top: 4px; }
+.stat-change.down { color: var(--error); }
+
+/* Table */
+.table-card {
+  background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border);
+  overflow: hidden; margin-bottom: 24px;
+}
+.table-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.table-title { font-size: 14px; font-weight: 600; }
+.table-actions { display: flex; gap: 8px; }
+.btn-sm {
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px;
+  font-weight: 500; border: 1px solid var(--border); background: var(--bg);
+  color: var(--text-secondary); cursor: pointer; font-family: var(--font);
+}
+.btn-sm.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 10px 20px; font-size: 11px; font-weight: 600;
+  color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+td { padding: 12px 20px; font-size: 13px; border-bottom: 1px solid var(--surface); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface); }
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 3px;
+  font-size: 11px; font-weight: 600;
+}
+.badge.active { background: var(--success-light); color: var(--success); }
+.badge.sold { background: var(--warn-light); color: var(--warn); }
+.badge.offline { background: var(--surface); color: var(--text-tertiary); }
+.badge.deleted { background: var(--error-light); color: var(--error); }
+.badge.admin { background: var(--accent-light); color: var(--accent); }
+.badge.user { background: var(--surface); color: var(--text-secondary); }
+.action-link { font-size: 12px; color: var(--accent); font-weight: 500; cursor: pointer; }
+.action-link + .action-link { margin-left: 12px; }
+.action-link.danger { color: var(--error); }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; }
+.page-info { font-size: 12px; color: var(--text-tertiary); }
+.page-btns { display: flex; gap: 4px; }
+.page-btn {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); font-size: 12px; border: 1px solid var(--border);
+  background: var(--bg); cursor: pointer; color: var(--text-secondary);
+}
+.page-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+/* Log entry */
+.log-type {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 8px;
+}
+.log-type.create { background: var(--success); }
+.log-type.update { background: var(--info); }
+.log-type.delete { background: var(--error); }
+.log-type.login { background: var(--accent); }
+
+/* Search */
+.search-input {
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 12px; outline: none; font-family: var(--font); width: 200px;
+}
+.search-input:focus { border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="name">邻趣集市</div>
+      <div class="sub">管理后台 v1.0</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">概览</div>
+        <div class="nav-item active"><span class="dot"></span> 仪表盘</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">数据管理</div>
+        <div class="nav-item"><span class="dot"></span> 商品管理</div>
+        <div class="nav-item"><span class="dot"></span> 拼团管理</div>
+        <div class="nav-item"><span class="dot"></span> 公告管理</div>
+        <div class="nav-item"><span class="dot"></span> 推荐地址</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">用户与权限</div>
+        <div class="nav-item"><span class="dot"></span> 用户管理</div>
+        <div class="nav-item"><span class="dot"></span> 管理员设置</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">系统</div>
+        <div class="nav-item"><span class="dot"></span> 操作日志</div>
+        <div class="nav-item"><span class="dot"></span> 系统设置</div>
+      </div>
+    </div>
+    <div class="sidebar-footer">Admin Panel · 2026</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">仪表盘</div>
+      <div class="topbar-right">
+        <span>管理员</span>
+        <div class="topbar-avatar"></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">在售商品</div>
+          <div class="stat-value">128</div>
+          <div class="stat-change">+12 今日新增</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">注册用户</div>
+          <div class="stat-value">347</div>
+          <div class="stat-change">+8 今日新增</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">进行中拼团</div>
+          <div class="stat-value">5</div>
+          <div class="stat-change down">-2 较昨日</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">今日成交</div>
+          <div class="stat-value">23</div>
+          <div class="stat-change">+5 较昨日</div>
+        </div>
+      </div>
+
+      <!-- Goods Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">商品管理</div>
+          <div class="table-actions">
+            <input class="search-input" placeholder="搜索商品...">
+            <button class="btn-sm">筛选</button>
+            <button class="btn-sm">导出</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>商品</th>
+              <th>发布者</th>
+              <th>价格</th>
+              <th>成色</th>
+              <th>状态</th>
+              <th>发布时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>好孩子婴儿推车 九成新</td>
+              <td>王女士</td>
+              <td>¥280</td>
+              <td>9成新</td>
+              <td><span class="badge active">在售</span></td>
+              <td>2026-05-08 10:30</td>
+              <td>
+                <span class="action-link">查看</span>
+                <span class="action-link">编辑</span>
+                <span class="action-link danger">下架</span>
+              </td>
+            </tr>
+            <tr>
+              <td>小熊宝宝绘本全套 15册</td>
+              <td>李先生</td>
+              <td>¥35</td>
+              <td>几乎全新</td>
+              <td><span class="badge sold">已卖出</span></td>
+              <td>2026-05-07 14:20</td>
+              <td>
+                <span class="action-link">查看</span>
+                <span class="action-link danger">删除</span>
+              </td>
+            </tr>
+            <tr>
+              <td>费雪多功能婴儿摇椅</td>
+              <td>张女士</td>
+              <td>¥150</td>
+              <td>7成新</td>
+              <td><span class="badge active">在售</span></td>
+              <td>2026-05-07 09:15</td>
+              <td>
+                <span class="action-link">查看</span>
+                <span class="action-link">编辑</span>
+                <span class="action-link danger">下架</span>
+              </td>
+            </tr>
+            <tr>
+              <td>实木宝宝餐椅 可调节</td>
+              <td>赵女士</td>
+              <td>¥120</td>
+              <td>9成新</td>
+              <td><span class="badge offline">已下架</span></td>
+              <td>2026-05-06 16:40</td>
+              <td>
+                <span class="action-link">查看</span>
+                <span class="action-link danger">删除</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <div class="page-info">共 128 条 · 第 1/13 页</div>
+          <div class="page-btns">
+            <div class="page-btn">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">...</div>
+            <div class="page-btn">13</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">用户管理</div>
+          <div class="table-actions">
+            <input class="search-input" placeholder="搜索用户...">
+            <button class="btn-sm">筛选</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>用户</th>
+              <th>角色</th>
+              <th>社区</th>
+              <th>发布数</th>
+              <th>注册时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>王女士</td>
+              <td><span class="badge user">普通用户</span></td>
+              <td>幸福花园 3号楼</td>
+              <td>12</td>
+              <td>2026-04-10</td>
+              <td><span class="badge active">正常</span></td>
+              <td>
+                <span class="action-link">查看</span>
+                <span class="action-link">编辑</span>
+                <span class="action-link danger">禁用</span>
+              </td>
+            </tr>
+            <tr>
+              <td>管理员</td>
+              <td><span class="badge admin">管理员</span></td>
+              <td>幸福花园 1号楼</td>
+              <td>—</td>
+              <td>2026-04-01</td>
+              <td><span class="badge active">正常</span></td>
+              <td>
+                <span class="action-link">编辑</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Operation Logs -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">操作日志</div>
+          <div class="table-actions">
+            <button class="btn-sm">筛选类型</button>
+            <button class="btn-sm">导出</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th>操作者</th>
+              <th>类型</th>
+              <th>操作内容</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-05-08 12:30</td>
+              <td>王女士</td>
+              <td><span class="log-type create"></span>发布商品</td>
+              <td>发布「好孩子婴儿推车 九成新」¥280</td>
+              <td>192.168.1.*</td>
+            </tr>
+            <tr>
+              <td>2026-05-08 12:15</td>
+              <td>管理员</td>
+              <td><span class="log-type update"></span>编辑公告</td>
+              <td>编辑公告「关于小区南门临时封闭的通知」</td>
+              <td>10.0.0.*</td>
+            </tr>
+            <tr>
+              <td>2026-05-08 11:40</td>
+              <td>李先生</td>
+              <td><span class="log-type update"></span>标记卖出</td>
+              <td>「小熊宝宝绘本全套 15册」标记为已卖出</td>
+              <td>192.168.1.*</td>
+            </tr>
+            <tr>
+              <td>2026-05-08 10:20</td>
+              <td>张女士</td>
+              <td><span class="log-type login"></span>用户登录</td>
+              <td>微信授权登录</td>
+              <td>192.168.1.*</td>
+            </tr>
+            <tr>
+              <td>2026-05-07 18:00</td>
+              <td>管理员</td>
+              <td><span class="log-type delete"></span>下架商品</td>
+              <td>手动下架「已过期拼团：水果礼盒」</td>
+              <td>10.0.0.*</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <div class="page-info">共 1,024 条 · 第 1/103 页</div>
+          <div class="page-btns">
+            <div class="page-btn">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">...</div>
+            <div class="page-btn">103</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
