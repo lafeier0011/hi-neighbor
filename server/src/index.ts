@@ -6,6 +6,8 @@ import authRoutes from './routes/auth'
 import goodsRoutes from './routes/goods'
 import favoritesRoutes from './routes/favorites'
 import locationRoutes from './routes/location'
+import groupbuyRoutes from './routes/groupbuy'
+import announceRoutes from './routes/announce'
 import adminRoutes from './routes/admin'
 
 const app = new Hono()
@@ -27,6 +29,8 @@ app.route('/api/auth', authRoutes)
 app.route('/api/goods', goodsRoutes)
 app.route('/api/favorites', favoritesRoutes)
 app.route('/api/locations', locationRoutes)
+app.route('/api/groupbuys', groupbuyRoutes)
+app.route('/api/announcements', announceRoutes)
 app.route('/admin', adminRoutes)
 
 // 404
