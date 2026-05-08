@@ -1,0 +1,29 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "邻趣集市", "navigationStyle": "custom" } },
+    { "path": "pages/publish/index", "style": { "navigationBarTitleText": "发布", "navigationStyle": "custom" } },
+    { "path": "pages/detail/index", "style": { "navigationBarTitleText": "商品详情", "navigationStyle": "custom" } },
+    { "path": "pages/groupbuy/index", "style": { "navigationBarTitleText": "社区拼团" } },
+    { "path": "pages/announce/index", "style": { "navigationBarTitleText": "社区公告" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的", "navigationStyle": "custom" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "邻趣集市",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f8f5f1"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#c2703e",
+    "borderStyle": "white",
+    "backgroundColor": "#ffffff",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab-home.png", "selectedIconPath": "static/tab-home-active.png" },
+      { "pagePath": "pages/groupbuy/index", "text": "拼团", "iconPath": "static/tab-group.png", "selectedIconPath": "static/tab-group-active.png" },
+      { "pagePath": "pages/publish/index", "text": "发布", "iconPath": "static/tab-publish.png", "selectedIconPath": "static/tab-publish-active.png" },
+      { "pagePath": "pages/announce/index", "text": "公告", "iconPath": "static/tab-announce.png", "selectedIconPath": "static/tab-announce-active.png" },
+      { "pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tab-profile.png", "selectedIconPath": "static/tab-profile-active.png" }
+    ]
+  }
+}

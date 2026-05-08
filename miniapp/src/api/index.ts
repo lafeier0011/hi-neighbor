@@ -1,0 +1,83 @@
+import { http } from '../utils/request'
+
+export const goodsApi = {
+  /** 商品列表 */
+  getList(params: { page?: number; pageSize?: number; category?: string; keyword?: string }) {
+    return http.get('/api/goods', params, false)
+  },
+
+  /** 商品详情 */
+  getDetail(id: string) {
+    return http.get(`/api/goods/${id}`, undefined, false)
+  },
+
+  /** 发布商品 */
+  publish(data: any) {
+    return http.post('/api/goods', data)
+  },
+
+  /** 标记已卖出 */
+  markSold(id: string) {
+    return http.put(`/api/goods/${id}/sell`)
+  },
+
+  /** 删除商品 */
+  deleteGoods(id: string) {
+    return http.delete(`/api/goods/${id}`)
+  },
+}
+
+export const authApi = {
+  /** 微信登录 */
+  login(code: string) {
+    return http.post('/api/auth/login', { code }, false)
+  },
+
+  /** 获取用户信息 */
+  getProfile() {
+    return http.get('/api/auth/profile')
+  },
+
+  /** 更新用户信息 */
+  updateProfile(data: any) {
+    return http.put('/api/auth/profile', data)
+  },
+}
+
+export const favoritesApi = {
+  /** 收藏/取消 */
+  toggle(goodsId: string) {
+    return http.post('/api/favorites', { goodsId })
+  },
+
+  /** 我的收藏 */
+  getList(params: { page?: number; pageSize?: number }) {
+    return http.get('/api/favorites', params)
+  },
+}
+
+export const locationApi = {
+  /** 获取推荐地址 */
+  getList() {
+    return http.get('/api/locations', undefined, false)
+  },
+}
+
+export const announceApi = {
+  /** 公告列表 */
+  getList() {
+    return http.get('/api/announcements', undefined, false)
+  },
+}
+
+export const groupbuyApi = {
+  /** 拼团列表 */
+  getList(params?: any) {
+    return http.get('/api/groupbuys', params, false)
+  },
+
+  /** 参团 */
+  join(id: string) {
+    return http.post(`/api/groupbuys/${id}/join`)
+  },
+}

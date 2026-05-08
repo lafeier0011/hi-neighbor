@@ -1,0 +1,28 @@
+{
+  "miniprogramRoot": "./dist/dev/mp-weixin/",
+  "projectname": "hi-neighbor",
+  "description": "邻趣集市 - 社区二手交易+拼团小程序",
+  "appid": "wx3193f5122d553ff7",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "compileHotReLoad": false,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram"
+}

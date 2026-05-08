@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邻趣集市 — UI v2 设计稿</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f6f5f3;
+  --border: #e8e6e1;
+  --text: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999;
+  --accent: #8B6F4E;
+  --radius: 8px;
+  --font: 'Outfit', -apple-system, 'PingFang SC', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font);
+  background: #eae8e3;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Header */
+.hero {
+  background: var(--text);
+  color: var(--bg);
+  padding: 60px 40px;
+  text-align: center;
+}
+.hero-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; opacity: 0.5; margin-bottom: 12px;
+}
+.hero-title {
+  font-size: 36px; font-weight: 700; letter-spacing: -1px; margin-bottom: 8px;
+}
+.hero-sub {
+  font-size: 14px; opacity: 0.5;
+}
+
+/* Design System */
+.ds-section {
+  max-width: 1200px; margin: 0 auto; padding: 48px 40px;
+}
+.ds-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 20px;
+}
+.ds-row {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px;
+}
+.ds-swatch {
+  width: 64px; height: 64px; border-radius: var(--radius);
+  display: flex; align-items: flex-end; padding: 6px;
+  font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.8);
+}
+.ds-font-sample { font-size: 24px; font-weight: 700; margin-right: 24px; }
+.ds-font-detail { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+
+/* Pages Grid */
+.pages-section {
+  max-width: 1200px; margin: 0 auto; padding: 0 40px 60px;
+}
+.pages-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 32px;
+}
+.pages-grid {
+  display: flex; gap: 40px; overflow-x: auto;
+  padding-bottom: 20px;
+}
+.page-card {
+  flex-shrink: 0;
+}
+.page-card-label {
+  font-size: 13px; font-weight: 600; margin-bottom: 4px;
+}
+.page-card-desc {
+  font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px;
+}
+.page-frame {
+  width: 280px; height: 606px;
+  border-radius: 32px; border: 6px solid #1a1a1a;
+  overflow: hidden; background: var(--bg);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  position: relative;
+  transform: scale(0.95);
+}
+.page-frame iframe {
+  width: 375px; height: 812px;
+  border: none; transform-origin: 0 0;
+  transform: scale(0.747);
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Hi-Neighbor v2</div>
+  <div class="hero-title">邻趣集市</div>
+  <div class="hero-sub">社区二手交易 + 拼团小程序 · UI 设计稿 v2</div>
+</div>
+
+<div class="ds-section">
+  <div class="ds-title">Design System</div>
+  <div class="ds-row">
+    <div class="ds-swatch" style="background:#1a1a1a;">#1a1a1a</div>
+    <div class="ds-swatch" style="background:#6b6b6b;">#6b6b6b</div>
+    <div class="ds-swatch" style="background:#999;">#999</div>
+    <div class="ds-swatch" style="background:#8B6F4E;">#8B6F4E</div>
+    <div class="ds-swatch" style="background:#f5f0ea; color:var(--text);">#f5f0ea</div>
+    <div class="ds-swatch" style="background:#f6f5f3; color:var(--text);">#f6f5f3</div>
+    <div class="ds-swatch" style="background:#e8e6e1; color:var(--text);">#e8e6e1</div>
+    <div class="ds-swatch" style="background:#3a7d5c;">#3a7d5c</div>
+  </div>
+  <div class="ds-row" style="align-items:baseline;">
+    <div>
+      <div class="ds-font-sample">Outfit</div>
+      <div class="ds-font-detail">Primary · Headings & Body</div>
+    </div>
+  </div>
+</div>
+
+<div class="pages-section">
+  <div class="pages-title">Pages</div>
+  <div class="pages-grid">
+    <div class="page-card">
+      <div class="page-card-label">01 — 首页</div>
+      <div class="page-card-desc">商品浏览 & 搜索</div>
+      <div class="page-frame"><iframe src="index.html"></iframe></div>
+    </div>
+    <div class="page-card">
+      <div class="page-card-label">02 — 发布</div>
+      <div class="page-card-desc">发布商品 / 拼团</div>
+      <div class="page-frame"><iframe src="publish.html"></iframe></div>
+    </div>
+    <div class="page-card">
+      <div class="page-card-label">03 — 拼团</div>
+      <div class="page-card-desc">社区拼团服务</div>
+      <div class="page-frame"><iframe src="groupbuy.html"></iframe></div>
+    </div>
+    <div class="page-card">
+      <div class="page-card-label">04 — 公告</div>
+      <div class="page-card-desc">社区公告通知</div>
+      <div class="page-frame"><iframe src="announce-profile.html#ann"></iframe></div>
+    </div>
+    <div class="page-card">
+      <div class="page-card-label">05 — 我的</div>
+      <div class="page-card-desc">个人中心 & 登录</div>
+      <div class="page-frame"><iframe src="announce-profile.html#profile"></iframe></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

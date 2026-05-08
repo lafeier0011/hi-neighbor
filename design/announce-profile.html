@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邻趣集市 — 公告页 & 个人中心</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f8f5f1;
+  --border: #ebe4da;
+  --text: #2d2a26;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999;
+  --accent: #a85c32;
+  --accent-light: #fdf5ee;
+  --success: #3a7d5c;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --font: 'Outfit', -apple-system, 'PingFang SC', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font); background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; padding: 40px 20px;
+  color: var(--text);
+}
+.page-label { font-size: 13px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+.page-title { font-size: 20px; font-weight: 700; margin-bottom: 32px; }
+.phone-frame {
+  width: 375px; height: 812px; background: var(--bg);
+  border-radius: 44px; border: 8px solid #2d2a26;
+  overflow: hidden; position: relative;
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.12); margin-bottom: 80px;
+}
+.status-bar {
+  height: 48px; display: flex; justify-content: space-between; align-items: center;
+  padding: 0 24px; font-size: 13px; font-weight: 600; color: var(--text);
+}
+.status-bar .icons { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+
+/* ===== ANNOUNCEMENTS ===== */
+.ann-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ann-title { font-size: 20px; font-weight: 700; }
+.ann-badge {
+  font-size: 11px; color: var(--text-tertiary); font-weight: 500;
+}
+
+.ann-card {
+  margin: 12px 20px; padding: 16px; background: var(--bg);
+  border-radius: var(--radius); border: 1px solid var(--border);
+}
+.ann-card-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.ann-tag {
+  font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.ann-tag.urgent { background: #fde8e8; color: #c0392b; }
+.ann-tag.event { background: var(--accent-light); color: var(--accent); }
+.ann-tag.notice { background: #e8f0f8; color: #2c5f8a; }
+.ann-date { font-size: 11px; color: var(--text-tertiary); }
+.ann-card-title {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  margin-bottom: 6px; line-height: 1.4;
+}
+.ann-card-body {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+}
+.ann-card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--surface);
+}
+.ann-author { font-size: 12px; color: var(--text-tertiary); }
+.ann-read { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+/* ===== PROFILE ===== */
+.profile-header {
+  background: #c2703e;
+  padding: 24px 20px 40px;
+}
+.profile-top {
+  display: flex; align-items: center; gap: 16px;
+}
+.profile-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.profile-name { color: var(--bg); font-size: 18px; font-weight: 600; }
+.profile-loc { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 2px; }
+
+/* Stats */
+.profile-stats {
+  display: flex; padding: 16px 0; margin: -20px 20px 0;
+  background: var(--bg); border-radius: var(--radius);
+  border: 1px solid var(--border); position: relative;
+}
+.stat-item { flex: 1; text-align: center; }
+.stat-num { font-size: 20px; font-weight: 700; color: var(--text); }
+.stat-label { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.stat-item + .stat-item { border-left: 1px solid var(--border); }
+
+/* Login */
+.login-prompt {
+  margin: 20px 20px; padding: 20px; background: var(--surface);
+  border-radius: var(--radius); text-align: center;
+  border: 1px solid var(--border);
+}
+.login-prompt .text { font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; }
+.login-btn {
+  display: inline-block; padding: 10px 40px;
+  background: #c2703e; color: var(--bg); font-size: 14px; font-weight: 600;
+  border-radius: var(--radius); font-family: var(--font);
+}
+
+/* Menu */
+.menu-section { padding: 8px 20px 0; }
+.menu-group {
+  border-radius: var(--radius); overflow: hidden;
+  margin-bottom: 12px; border: 1px solid var(--border);
+}
+.menu-item {
+  display: flex; align-items: center; padding: 14px 16px;
+  border-bottom: 1px solid var(--surface);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); margin-right: 14px; flex-shrink: 0;
+}
+.menu-text { flex: 1; font-size: 14px; color: var(--text); }
+.menu-arrow { color: var(--text-tertiary); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="page-label">04 / 05</div>
+<div class="page-title">公告</div>
+
+<div class="phone-frame">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span class="icons">●●● Wi-Fi ■</span>
+  </div>
+
+  <div class="ann-header">
+    <div class="ann-title">社区公告</div>
+    <div class="ann-badge">3 条未读</div>
+  </div>
+
+  <div class="ann-card">
+    <div class="ann-card-top">
+      <div class="ann-tag urgent">重要通知</div>
+      <div class="ann-date">2026-05-07</div>
+    </div>
+    <div class="ann-card-title">关于小区南门临时封闭的通知</div>
+    <div class="ann-card-body">因南门路面维修，5月8日-10日临时封闭，请邻居们从东门或北门出入。</div>
+    <div class="ann-card-footer">
+      <div class="ann-author">物业管理处</div>
+      <div class="ann-read">326人已读</div>
+    </div>
+  </div>
+
+  <div class="ann-card">
+    <div class="ann-card-top">
+      <div class="ann-tag event">社区活动</div>
+      <div class="ann-date">2026-05-06</div>
+    </div>
+    <div class="ann-card-title">周末跳蚤市场开始报名</div>
+    <div class="ann-card-body">本周六上午 9:00-12:00，小区广场举办跳蚤市场活动。摊位免费，先到先得。</div>
+    <div class="ann-card-footer">
+      <div class="ann-author">社区居委会</div>
+      <div class="ann-read">198人已读</div>
+    </div>
+  </div>
+
+  <div class="ann-card">
+    <div class="ann-card-top">
+      <div class="ann-tag notice">温馨提示</div>
+      <div class="ann-date">2026-05-05</div>
+    </div>
+    <div class="ann-card-title">夏季绿化养护通知</div>
+    <div class="ann-card-body">物业将于本周起对小区绿化进行夏季养护喷药，请低层住户注意关窗。</div>
+    <div class="ann-card-footer">
+      <div class="ann-author">物业管理处</div>
+      <div class="ann-read">142人已读</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE 5: PROFILE ===== -->
+<div class="page-label">05 / 05</div>
+<div class="page-title">个人中心</div>
+
+<div class="phone-frame">
+  <div class="status-bar" style="color:var(--bg);">
+    <span>9:41</span>
+    <span class="icons">●●● Wi-Fi ■</span>
+  </div>
+
+  <div class="profile-header">
+    <div class="profile-top">
+      <div class="profile-avatar"></div>
+      <div>
+        <div class="profile-name">微信用户</div>
+        <div class="profile-loc">幸福花园小区</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="stat-item">
+      <div class="stat-num">5</div>
+      <div class="stat-label">发布</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">12</div>
+      <div class="stat-label">收藏</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">参团</div>
+    </div>
+  </div>
+
+  <div class="login-prompt">
+    <div class="text">授权微信登录，解锁更多功能</div>
+    <div class="login-btn">微信登录</div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-group">
+      <div class="menu-item">
+        <div class="menu-dot"></div>
+        <span class="menu-text">我的发布</span>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-dot"></div>
+        <span class="menu-text">我的收藏</span>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-dot"></div>
+        <span class="menu-text">我的拼团</span>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-dot"></div>
+        <span class="menu-text">收货地址</span>
+        <span class="menu-arrow">›</span>
+      </div>
+    </div>
+    <div class="menu-group">
+      <div class="menu-item">
+        <div class="menu-dot" style="background:var(--text-tertiary);"></div>
+        <span class="menu-text">设置</span>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-dot" style="background:var(--text-tertiary);"></div>
+        <span class="menu-text">意见反馈</span>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-dot" style="background:var(--text-tertiary);"></div>
+        <span class="menu-text">关于邻趣集市</span>
+        <span class="menu-arrow">›</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

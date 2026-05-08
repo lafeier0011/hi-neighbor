@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邻趣集市 — 发布页</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f8f5f1;
+  --border: #ebe4da;
+  --text: #2d2a26;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999;
+  --accent: #c2703e;
+  --accent-light: #fdf5ee;
+  --error: #c0392b;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --font: 'Outfit', -apple-system, 'PingFang SC', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font); background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; padding: 40px 20px;
+  color: var(--text);
+}
+.page-label { font-size: 13px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+.page-title { font-size: 20px; font-weight: 700; margin-bottom: 32px; }
+.phone-frame {
+  width: 375px; height: 812px; background: var(--bg);
+  border-radius: 44px; border: 8px solid #2d2a26;
+  overflow-y: auto; overflow-x: hidden; position: relative;
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.12); margin-bottom: 80px;
+}
+.status-bar {
+  height: 48px; display: flex; justify-content: space-between; align-items: center;
+  padding: 0 24px; font-size: 13px; font-weight: 600; color: var(--text);
+}
+.status-bar .icons { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+.nav-bar {
+  height: 48px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; border-bottom: 1px solid var(--border);
+}
+.nav-back { font-size: 18px; color: var(--text); cursor: pointer; font-weight: 300; }
+.nav-title { font-size: 16px; font-weight: 600; }
+.nav-action { font-size: 13px; color: var(--text-tertiary); }
+
+.type-tabs { display: flex; padding: 16px 20px; gap: 8px; }
+.type-tab {
+  flex: 1; padding: 10px; border-radius: var(--radius); text-align: center;
+  font-size: 14px; font-weight: 500; background: var(--surface);
+  color: var(--text-secondary); border: 1px solid transparent;
+}
+.type-tab.active { background: var(--bg); color: var(--text); border-color: #2d2a26; font-weight: 600; }
+
+.form-section { padding: 0 20px; }
+.form-group { margin-bottom: 18px; }
+.form-label {
+  font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; display: block;
+  font-weight: 500; letter-spacing: 0.5px;
+}
+.form-label .required { color: var(--error); }
+.form-input {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 14px; outline: none; color: var(--text); font-family: var(--font); background: var(--bg);
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input.error { border-color: var(--error); }
+.form-textarea {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 14px; outline: none; height: 72px; resize: none;
+  font-family: var(--font); color: var(--text); background: var(--bg);
+  transition: border-color 0.2s;
+}
+.form-textarea:focus { border-color: var(--accent); }
+.form-hint {
+  font-size: 11px; margin-top: 4px; display: flex; justify-content: space-between;
+}
+.form-hint .tip { color: var(--text-tertiary); }
+.form-hint .count { color: var(--text-tertiary); }
+.form-hint .error-msg { color: var(--error); display: none; }
+.form-hint .error-msg.show { display: inline; }
+
+.photo-upload { display: flex; gap: 10px; }
+.photo-slot {
+  width: 72px; height: 72px; border: 1px solid var(--border); border-radius: var(--radius);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--surface);
+}
+.photo-slot .plus { font-size: 20px; color: var(--text-tertiary); font-weight: 300; }
+.photo-slot .label { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+.photo-slot.filled { background: var(--surface); }
+.photo-slot.filled .img-placeholder { width: 32px; height: 32px; border-radius: 4px; background: var(--border); }
+
+.category-select { display: flex; gap: 8px; flex-wrap: wrap; }
+.cat-option {
+  padding: 6px 14px; border-radius: 20px; font-size: 13px;
+  color: var(--text-secondary); border: 1px solid var(--border); font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.cat-option.active { background: #c2703e; color: #fff; border-color: #c2703e; }
+
+.price-row { display: flex; gap: 10px; }
+.price-row .form-group { flex: 1; }
+.price-input-wrap {
+  display: flex; align-items: center; border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s;
+}
+.price-input-wrap:focus-within { border-color: var(--accent); }
+.price-prefix {
+  padding: 12px 14px; background: var(--surface);
+  font-size: 14px; color: var(--text); font-weight: 600;
+  border-right: 1px solid var(--border);
+}
+.price-input-wrap input {
+  flex: 1; border: none; padding: 12px 14px; font-size: 14px; outline: none;
+  font-family: var(--font); color: var(--text);
+}
+
+/* Contact */
+.contact-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.contact-label {
+  width: 48px; font-size: 12px; color: var(--text-secondary);
+  font-weight: 500; flex-shrink: 0;
+}
+.contact-input {
+  flex: 1; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 14px; outline: none;
+  font-family: var(--font); color: var(--text); transition: border-color 0.2s;
+}
+.contact-input:focus { border-color: var(--accent); }
+.contact-input.error { border-color: var(--error); }
+.contact-hint {
+  font-size: 11px; color: var(--text-tertiary); margin-left: 56px; margin-bottom: 4px;
+}
+.contact-hint.error { color: var(--error); }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 4px 0 18px; }
+
+.submit-btn {
+  margin: 20px 20px 40px; padding: 14px;
+  background: #c2703e; color: #fff;
+  font-size: 15px; font-weight: 600; border: none;
+  border-radius: var(--radius); width: calc(100% - 40px);
+  text-align: center; font-family: var(--font);
+  cursor: pointer; transition: opacity 0.2s;
+}
+.submit-btn:active { opacity: 0.85; }
+.submit-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75); color: #fff; padding: 12px 24px;
+  border-radius: var(--radius); font-size: 14px; z-index: 999;
+  display: none; font-family: var(--font);
+}
+.toast.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="page-label">02 / 06</div>
+<div class="page-title">发布</div>
+
+<div class="phone-frame">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span class="icons">●●● Wi-Fi ■</span>
+  </div>
+
+  <div class="nav-bar">
+    <span class="nav-back">←</span>
+    <span class="nav-title">发布</span>
+    <span class="nav-action">草稿箱</span>
+  </div>
+
+  <div class="type-tabs">
+    <div class="type-tab active">二手好物</div>
+    <div class="type-tab">拼团服务</div>
+  </div>
+
+  <form class="form-section" id="publishForm" onsubmit="return false;">
+    <!-- Photos -->
+    <div class="form-group">
+      <label class="form-label">图片</label>
+      <div class="photo-upload">
+        <div class="photo-slot filled"><div class="img-placeholder"></div></div>
+        <div class="photo-slot filled"><div class="img-placeholder"></div></div>
+        <div class="photo-slot"><span class="plus">+</span><span class="label">添加</span></div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="form-group">
+      <label class="form-label">名称 <span class="required">*</span></label>
+      <input class="form-input" id="title" placeholder="描述一下你的宝贝" value="好孩子婴儿推车 九成新" maxlength="30" oninput="validateTitle()">
+      <div class="form-hint">
+        <span class="error-msg" id="titleErr">请输入商品名称</span>
+        <span class="count"><span id="titleCount">12</span>/30</span>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label">描述</label>
+      <textarea class="form-textarea" placeholder="品牌、尺寸、新旧程度..." maxlength="300" oninput="validateDesc()">轻便型推车，宝宝用了半年，功能完好。可折叠，出门方便。小区内面交。</textarea>
+      <div class="form-hint"><span class="tip"></span><span class="count"><span id="descCount">33</span>/300</span></div>
+    </div>
+
+    <!-- Condition -->
+    <div class="form-group">
+      <label class="form-label">成色 <span class="required">*</span></label>
+      <div class="category-select" id="conditionSelect">
+        <div class="cat-option">全新</div>
+        <div class="cat-option active">9成新</div>
+        <div class="cat-option">7成新</div>
+        <div class="cat-option">5成新</div>
+        <div class="cat-option">一般</div>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <label class="form-label">分类</label>
+      <div class="category-select" id="categorySelect">
+        <div class="cat-option active">母婴</div>
+        <div class="cat-option">玩具</div>
+        <div class="cat-option">书籍</div>
+        <div class="cat-option">家居</div>
+        <div class="cat-option">服饰</div>
+        <div class="cat-option">数码</div>
+      </div>
+    </div>
+
+    <!-- Price -->
+    <div class="price-row">
+      <div class="form-group">
+        <label class="form-label">售价 <span class="required">*</span></label>
+        <div class="price-input-wrap">
+          <span class="price-prefix">¥</span>
+          <input type="number" id="price" placeholder="0" value="280" min="0" oninput="validatePrice()">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">原价</label>
+        <div class="price-input-wrap">
+          <span class="price-prefix">¥</span>
+          <input type="number" id="origPrice" placeholder="选填" value="899" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+      <label class="form-label">交易地点</label>
+      <input class="form-input" placeholder="选择交易地点" value="幸福花园 · 南门">
+    </div>
+
+    <!-- Contact -->
+    <div class="divider"></div>
+    <div class="form-group">
+      <label class="form-label">联系方式 <span class="required">*</span></label>
+      <div class="contact-hint">至少填写一项，方便买家联系你</div>
+      <div class="contact-row">
+        <span class="contact-label">微信号</span>
+        <input class="contact-input" id="wechat" placeholder="输入微信号" value="wang_baby2024" oninput="validateContact()">
+      </div>
+      <div class="contact-hint" id="wechatHint">6-20位，字母开头</div>
+      <div class="contact-row">
+        <span class="contact-label">手机号</span>
+        <input class="contact-input" id="phone" placeholder="输入手机号" oninput="validateContact(); this.value=this.value.replace(/\D/g,'')">
+      </div>
+      <div class="contact-hint" id="phoneHint">11位手机号</div>
+      <div class="form-hint"><span class="error-msg" id="contactErr">请至少填写一种联系方式</span></div>
+    </div>
+  </form>
+
+  <div class="submit-btn" onclick="submitForm()">发布</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Tab select logic
+document.querySelectorAll('.category-select').forEach(group => {
+  group.querySelectorAll('.cat-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      group.querySelectorAll('.cat-option').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
+});
+
+function validateTitle() {
+  const el = document.getElementById('title');
+  const count = document.getElementById('titleCount');
+  const err = document.getElementById('titleErr');
+  count.textContent = el.value.length;
+  if (el.value.length > 30) {
+    el.value = el.value.slice(0, 30);
+    count.textContent = 30;
+  }
+  if (el.value.trim().length === 0) {
+    err.classList.add('show');
+    el.classList.add('error');
+  } else {
+    err.classList.remove('show');
+    el.classList.remove('error');
+  }
+}
+
+function validateDesc() {
+  const el = document.querySelector('.form-textarea');
+  const count = document.getElementById('descCount');
+  if (el.value.length > 300) el.value = el.value.slice(0, 300);
+  count.textContent = el.value.length;
+}
+
+function validatePrice() {
+  const el = document.getElementById('price');
+  if (el.value < 0) el.value = 0;
+}
+
+function validateContact() {
+  const wechat = document.getElementById('wechat');
+  const phone = document.getElementById('phone');
+  const err = document.getElementById('contactErr');
+  const wechatHint = document.getElementById('wechatHint');
+  const phoneHint = document.getElementById('phoneHint');
+
+  // 微信号校验
+  if (wechat.value.length > 0) {
+    const valid = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/.test(wechat.value);
+    wechat.classList.toggle('error', !valid);
+    wechatHint.classList.toggle('error', !valid && wechat.value.length >= 6);
+  } else {
+    wechat.classList.remove('error');
+    wechatHint.classList.remove('error');
+  }
+
+  // 手机号校验
+  if (phone.value.length > 0) {
+    const valid = /^1[3-9]\d{9}$/.test(phone.value);
+    phone.classList.toggle('error', !valid && phone.value.length >= 11);
+    phoneHint.classList.toggle('error', !valid && phone.value.length >= 11);
+  } else {
+    phone.classList.remove('error');
+    phoneHint.classList.remove('error');
+  }
+
+  // 至少一个
+  const hasContact = wechat.value.trim().length > 0 || phone.value.trim().length > 0;
+  if (hasContact) {
+    err.classList.remove('show');
+  }
+  return hasContact;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function submitForm() {
+  const title = document.getElementById('title');
+  const price = document.getElementById('price');
+  const wechat = document.getElementById('wechat');
+  const phone = document.getElementById('phone');
+
+  // 校验标题
+  if (!title.value.trim()) {
+    document.getElementById('titleErr').classList.add('show');
+    title.classList.add('error');
+    title.focus();
+    return;
+  }
+
+  // 校验价格
+  if (!price.value || Number(price.value) <= 0) {
+    showToast('请输入有效售价');
+    price.focus();
+    return;
+  }
+
+  // 校验联系方式
+  if (!validateContact()) {
+    document.getElementById('contactErr').classList.add('show');
+    wechat.focus();
+    return;
+  }
+
+  // 手机号格式校验（如果填了的话）
+  if (phone.value.length > 0 && !/^1[3-9]\d{9}$/.test(phone.value)) {
+    phone.classList.add('error');
+    document.getElementById('phoneHint').classList.add('error');
+    showToast('手机号格式不正确');
+    phone.focus();
+    return;
+  }
+
+  // 微信号格式校验（如果填了的话）
+  if (wechat.value.length > 0 && !/^[a-zA-Z][a-zA-Z0-9_]{5,19}$/.test(wechat.value)) {
+    wechat.classList.add('error');
+    document.getElementById('wechatHint').classList.add('error');
+    showToast('微信号格式不正确');
+    wechat.focus();
+    return;
+  }
+
+  showToast('发布成功！');
+}
+
+// Init counters
+validateTitle();
+validateDesc();
+</script>
+
+</body>
+</html>
