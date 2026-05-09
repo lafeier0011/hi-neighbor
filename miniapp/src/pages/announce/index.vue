@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { announceApi } from '../api'
+import { announceApi } from '../../api'
 
 const announces = ref<any[]>([])
 const detailVisible = ref(false)
@@ -79,14 +79,14 @@ $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $radius: 16rpx;
 
-.page { min-height: 100vh; background: $bg; }
+.page { min-height: 100vh; background: $bg; overflow-x: hidden; }
 .header { display: flex; justify-content: space-between; align-items: center;
-  padding: 28rpx 32rpx; border-bottom: 2rpx solid $border; }
+  padding: 28rpx 24rpx; border-bottom: 2rpx solid $border; }
 .header-title { font-size: 36rpx; font-weight: 700; }
 .header-badge { font-size: 22rpx; color: $text-tri; }
-.list { padding: 20rpx 32rpx; }
+.list { padding: 20rpx 24rpx; box-sizing: border-box; }
 
-.ann-card { padding: 28rpx; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 20rpx; }
+.ann-card { padding: 28rpx; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 20rpx; box-sizing: border-box; }
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
 .ann-tag { font-size: 20rpx; padding: 4rpx 14rpx; border-radius: 6rpx; font-weight: 600;
   &.urgent { background: #fde8e8; color: #c0392b; }

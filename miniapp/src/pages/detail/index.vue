@@ -180,7 +180,7 @@ $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
 
-.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; }
+.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
 .nav-bar { height: 88rpx; display: flex; align-items: center; justify-content: space-between;
   padding: 0 32rpx; border-bottom: 2rpx solid $border; }
 .nav-back { font-size: 36rpx; color: $text; }

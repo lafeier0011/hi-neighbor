@@ -317,7 +317,7 @@ $accent-light: #fdf5ee;
 $error: #c0392b;
 $radius: 16rpx;
 
-.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; }
+.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
 .nav-bar {
   height: 88rpx; display: flex; align-items: center; justify-content: space-between;
   padding: 0 32rpx; border-bottom: 2rpx solid $border;
@@ -329,7 +329,7 @@ $radius: 16rpx;
 .form-scroll { flex: 1; }
 
 .type-tabs {
-  display: flex; padding: 24rpx 32rpx; gap: 16rpx;
+  display: flex; padding: 24rpx 24rpx; gap: 16rpx;
 }
 .type-tab {
   flex: 1; padding: 20rpx; text-align: center; border-radius: $radius;
@@ -338,7 +338,7 @@ $radius: 16rpx;
   &.active { border-color: $text; color: $text; font-weight: 600; background: $bg; }
 }
 
-.form-group { padding: 0 32rpx; margin-bottom: 32rpx; }
+.form-group { padding: 0 24rpx; margin-bottom: 32rpx; }
 .form-group.half { flex: 1; }
 .form-label {
   font-size: 24rpx; color: $text-tertiary; font-weight: 500;
@@ -346,12 +346,12 @@ $radius: 16rpx;
 }
 .required { color: $error; }
 .form-input {
-  width: 100%; padding: 24rpx 28rpx; border: 2rpx solid $border; border-radius: $radius;
-  font-size: 28rpx; background: $bg;
+  width: 100%; height: 80rpx; padding: 0 28rpx; border: 2rpx solid $border; border-radius: $radius;
+  font-size: 28rpx; background: $bg; box-sizing: border-box; line-height: 80rpx;
 }
 .form-textarea {
   width: 100%; padding: 24rpx 28rpx; border: 2rpx solid $border; border-radius: $radius;
-  font-size: 28rpx; height: 160rpx; background: $bg;
+  font-size: 28rpx; height: 160rpx; background: $bg; box-sizing: border-box;
 }
 .form-hint { display: flex; justify-content: space-between; margin-top: 8rpx; font-size: 22rpx; }
 .count { color: $text-tertiary; }
@@ -375,7 +375,7 @@ $radius: 16rpx;
   &.active { background: $accent; color: #fff; border-color: $accent; }
 }
 
-.price-row { display: flex; gap: 20rpx; padding: 0 32rpx; }
+.price-row { display: flex; gap: 20rpx; padding: 0 24rpx; }
 .price-input {
   display: flex; align-items: center; border: 2rpx solid $border;
   border-radius: $radius; overflow: hidden;
@@ -384,22 +384,23 @@ $radius: 16rpx;
   padding: 24rpx 28rpx; background: $surface; font-size: 28rpx;
   color: $text; font-weight: 600; border-right: 2rpx solid $border;
 }
-.price-input input { flex: 1; padding: 24rpx 28rpx; font-size: 28rpx; }
+.price-input input { flex: 1; height: 72rpx; padding: 0 28rpx; font-size: 28rpx; }
 
 .location-picker {
   display: flex; align-items: center; justify-content: space-between;
   padding: 24rpx 28rpx; border: 2rpx solid $border; border-radius: $radius;
+  box-sizing: border-box;
 }
 .location-text { font-size: 28rpx; color: $text; &.placeholder { color: $text-tertiary; } }
 .arrow { color: $text-tertiary; font-size: 28rpx; }
 
-.divider { height: 2rpx; background: $border; margin: 8rpx 32rpx 32rpx; }
+.divider { height: 2rpx; background: $border; margin: 8rpx 24rpx 32rpx; }
 
 .contact-row { display: flex; align-items: center; gap: 16rpx; margin-bottom: 8rpx; }
 .contact-label { width: 96rpx; font-size: 24rpx; color: $text-secondary; font-weight: 500; flex-shrink: 0; }
 .contact-input {
-  flex: 1; padding: 20rpx 24rpx; border: 2rpx solid $border; border-radius: $radius;
-  font-size: 28rpx; &.error { border-color: $error; }
+  flex: 1; height: 72rpx; padding: 0 24rpx; border: 2rpx solid $border; border-radius: $radius;
+  font-size: 28rpx; line-height: 72rpx; &.error { border-color: $error; }
 }
 .contact-hint { font-size: 22rpx; color: $text-tertiary; display: block; margin-bottom: 12rpx; }
 .field-hint { font-size: 22rpx; color: $text-tertiary; margin-left: 112rpx; margin-bottom: 8rpx; display: block;

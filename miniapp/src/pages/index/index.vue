@@ -48,15 +48,17 @@
           class="product-card"
           @tap="goDetail(item._id)"
         >
-          <view class="product-img">
-            <image v-if="item.images?.length" :src="item.images[0]" mode="aspectFill" class="img" />
-            <view v-else class="img-placeholder" />
-          </view>
-          <view class="product-info">
-            <text class="product-name">{{ item.title }}</text>
-            <view class="product-meta">
-              <text class="product-price">¥{{ item.price }}</text>
-              <text class="product-condition">{{ item.condition }}</text>
+          <view class="product-card-inner">
+            <view class="product-img">
+              <image v-if="item.images?.length" :src="item.images[0]" mode="aspectFill" class="img" />
+              <view v-else class="img-placeholder" />
+            </view>
+            <view class="product-info">
+              <text class="product-name">{{ item.title }}</text>
+              <view class="product-meta">
+                <text class="product-price">¥{{ item.price }}</text>
+                <text class="product-condition">{{ item.condition }}</text>
+              </view>
             </view>
           </view>
         </view>
@@ -71,7 +73,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { goodsApi } from '../api'
+import { goodsApi } from '../../api'
 
 const community = ref('幸福花园')
 const currentCategory = ref('全部')
@@ -271,24 +273,28 @@ $radius: 16rpx;
 .product-grid {
   display: flex;
   flex-wrap: wrap;
-  padding: 20rpx 32rpx;
+  padding: 16rpx 20rpx 0;
+  box-sizing: border-box;
 }
 
 .product-card {
-  width: calc(50% - 10rpx);
+  width: 50%;
+  box-sizing: border-box;
+  padding: 0 10rpx;
   margin-bottom: 20rpx;
+}
+
+.product-card-inner {
   background: $bg;
   border-radius: $radius;
   border: 2rpx solid $border;
   overflow: hidden;
-
-  &:nth-child(odd) {
-    margin-right: 20rpx;
-  }
+  display: flex;
+  flex-direction: column;
 }
 
 .product-img {
-  height: 260rpx;
+  height: 240rpx;
   background: $surface;
   display: flex;
   align-items: center;
@@ -309,6 +315,10 @@ $radius: 16rpx;
 
 .product-info {
   padding: 16rpx 20rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .product-name {
@@ -322,6 +332,7 @@ $radius: 16rpx;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 12rpx;
+  min-height: 72rpx;
 }
 
 .product-meta {

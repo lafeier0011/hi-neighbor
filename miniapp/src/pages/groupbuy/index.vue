@@ -74,8 +74,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { groupbuyApi } from '../api'
-import { useUserStore } from '../store/user'
+import { groupbuyApi } from '../../api'
+import { useUserStore } from '../../store/user'
 
 const userStore = useUserStore()
 const currentTab = ref('')
@@ -156,20 +156,20 @@ $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $success: #3a7d5c; $radius: 16rpx;
 
-.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; }
+.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
 .nav-bar { height: 88rpx; display: flex; align-items: center; justify-content: center;
   border-bottom: 2rpx solid $border; }
 .nav-title { font-size: 32rpx; font-weight: 600; }
 
-.filter-tabs { white-space: nowrap; padding: 20rpx 32rpx; }
+.filter-tabs { white-space: nowrap; padding: 20rpx 24rpx 20rpx 24rpx; }
 .filter-tab { display: inline-flex; padding: 12rpx 28rpx; border-radius: 40rpx;
   font-size: 26rpx; font-weight: 500; background: $surface; color: $text-sec; margin-right: 16rpx;
   &.active { background: $accent; color: #fff; }
 }
 
-.list { flex: 1; padding: 16rpx 32rpx; }
+.list { flex: 1; padding: 16rpx 24rpx; box-sizing: border-box; }
 
-.group-card { padding: 28rpx; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 20rpx; }
+.group-card { padding: 28rpx; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 20rpx; box-sizing: border-box; }
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12rpx; }
 .card-title { font-size: 30rpx; font-weight: 600; color: $text; flex: 1; line-height: 1.4; }
 .card-badge { font-size: 20rpx; padding: 6rpx 14rpx; border-radius: 6rpx; font-weight: 600; margin-left: 16rpx;
@@ -194,7 +194,7 @@ $success: #3a7d5c; $radius: 16rpx;
   &.empty { background: $surface; border: 2rpx dashed $border; } }
 .avatar-hint { font-size: 22rpx; color: $text-tri; margin-left: 16rpx; }
 
-.join-btn { width: 100%; height: 80rpx; background: $accent; border-radius: $radius;
+.join-btn { width: 100%; height: 80rpx; background: $accent; border-radius: $radius; box-sizing: border-box;
   display: flex; align-items: center; justify-content: center;
   text { color: #fff; font-size: 28rpx; font-weight: 600; }
   &.disabled { background: $surface; text { color: $text-tri; } }

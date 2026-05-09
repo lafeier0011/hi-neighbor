@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '../store/user'
+import { useUserStore } from '../../store/user'
 
 const userStore = useUserStore()
 const myStats = ref({ published: 0, favorites: 0, groupbuy: 0 })
@@ -118,7 +118,7 @@ onMounted(() => {
 $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
 
-.page { min-height: 100vh; background: $surface; }
+.page { min-height: 100vh; background: $surface; overflow-x: hidden; }
 
 .profile-header { background: $text; padding: 48rpx 32rpx 64rpx; }
 .profile-top { display: flex; align-items: center; gap: 24rpx; }
