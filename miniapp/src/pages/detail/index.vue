@@ -99,21 +99,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { goodsApi, favoritesApi } from '../../api'
 import { useUserStore } from '../../store/user'
 
-const props = defineProps<{ id: string }>()
 const userStore = useUserStore()
 const detail = ref<any>({})
 const favorited = ref(false)
 const copyText = ref('复制')
+const goodsId = ref('')
 
 const isOwner = computed(() => detail.value.publisherId === userStore.userInfo?.openid)
 
 async function fetchDetail() {
+  if (!goodsId.value) return
   try {
-    detail.value = await goodsApi.getDetail(props.id)
+    const res = await goodsApi.getDetail(goodsId.value)
+    detail.value = Array.isArray(res) ? res[0] : res
   } catch {}
 }
 
@@ -139,7 +142,7 @@ function copyContact() {
 
 async function toggleFav() {
   try {
-    const data = await favoritesApi.toggle(props.id)
+    const data = await favoritesApi.toggle(goodsId.value)
     favorited.value = data.favorited
   } catch {}
 }
@@ -150,7 +153,7 @@ async function markSold() {
     content: '确定标记为已卖出？标记后1天自动下架',
     success: async (res) => {
       if (res.confirm) {
-        await goodsApi.markSold(props.id)
+        await goodsApi.markSold(goodsId.value)
         uni.showToast({ title: '已标记', icon: 'success' })
         fetchDetail()
       }
@@ -164,7 +167,7 @@ async function deleteGoods() {
     content: '删除后不可恢复，确定删除？',
     success: async (res) => {
       if (res.confirm) {
-        await goodsApi.deleteGoods(props.id)
+        await goodsApi.deleteGoods(goodsId.value)
         uni.showToast({ title: '已删除', icon: 'success' })
         setTimeout(() => uni.navigateBack(), 1500)
       }
@@ -172,7 +175,10 @@ async function deleteGoods() {
   })
 }
 
-onMounted(() => fetchDetail())
+onLoad((options: any) => {
+  goodsId.value = options.id || ''
+  fetchDetail()
+})
 </script>
 
 <style scoped lang="scss">
@@ -187,7 +193,7 @@ $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
 .nav-title { font-size: 32rpx; font-weight: 600; }
 .nav-action { font-size: 26rpx; color: $text-tri; }
 
-.content { flex: 1; }
+.content { flex: 1; height: 0; }
 .img-swiper { height: 560rpx; }
 .swiper-img { width: 100%; height: 100%; }
 .img-empty { width: 100%; height: 100%; background: $surface; }

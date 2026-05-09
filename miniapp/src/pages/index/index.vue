@@ -268,6 +268,7 @@ $radius: 16rpx;
 
 .product-list {
   flex: 1;
+  height: 0;
 }
 
 .product-grid {
