@@ -5,7 +5,7 @@
     </view>
 
     <!-- 筛选 -->
-    <scroll-view scroll-x class="filter-tabs">
+    <scroll-view scroll-x class="filter-tabs" :show-scrollbar="false" enhanced :bounces="false">
       <view
         v-for="tab in tabs"
         :key="tab.value"

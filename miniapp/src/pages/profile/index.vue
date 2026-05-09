@@ -89,10 +89,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn())
 const userInfo = computed(() => userStore.userInfo || {})
 
 async function handleLogin() {
-  try {
-    await userStore.login()
-    uni.showToast({ title: '登录成功', icon: 'success' })
-  } catch {}
+  await userStore.login()
 }
 
 function goMy(type: string) {

@@ -8,17 +8,28 @@ export const useUserStore = defineStore('user', () => {
 
   async function login() {
     // 获取微信登录code
-    const [loginErr, loginRes] = await uni.login({ provider: 'weixin' })
-    if (loginErr || !loginRes?.code) {
-      uni.showToast({ title: '登录失败', icon: 'none' })
-      return
-    }
-
-    const data = await authApi.login(loginRes.code)
-    token.value = data.token
-    userInfo.value = data.userInfo
-    uni.setStorageSync('token', data.token)
-    uni.setStorageSync('userInfo', data.userInfo)
+    uni.login({
+      provider: 'weixin',
+      success: async (loginRes) => {
+        if (!loginRes.code) {
+          uni.showToast({ title: '登录失败', icon: 'none' })
+          return
+        }
+        try {
+          const data = await authApi.login(loginRes.code)
+          token.value = data.token
+          userInfo.value = data.userInfo
+          uni.setStorageSync('token', data.token)
+          uni.setStorageSync('userInfo', data.userInfo)
+          uni.showToast({ title: '登录成功', icon: 'success' })
+        } catch {
+          uni.showToast({ title: '登录失败', icon: 'none' })
+        }
+      },
+      fail: () => {
+        uni.showToast({ title: '登录失败', icon: 'none' })
+      },
+    })
   }
 
   function logout() {

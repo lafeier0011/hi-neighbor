@@ -15,5 +15,13 @@ page {
   color: #2d2a26;
   background: #ffffff;
   overflow-x: hidden;
+  width: 100%;
+}
+
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
 }
 </style>

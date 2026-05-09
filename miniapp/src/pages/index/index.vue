@@ -16,7 +16,7 @@
     </view>
 
     <!-- 分类 -->
-    <scroll-view class="categories" scroll-x>
+    <scroll-view class="categories" scroll-x :show-scrollbar="false" enhanced :bounces="false">
       <view
         v-for="cat in categories"
         :key="cat.name"
@@ -33,46 +33,38 @@
     <view class="divider" />
 
     <!-- 商品列表 -->
-    <scroll-view
-      scroll-y
-      class="product-list"
-      @scrolltolower="loadMore"
-      refresher-enabled
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-    >
-      <view class="product-grid">
-        <view
-          v-for="item in goodsList"
-          :key="item._id"
-          class="product-card"
-          @tap="goDetail(item._id)"
-        >
-          <view class="product-card-inner">
-            <view class="product-img">
-              <image v-if="item.images?.length" :src="item.images[0]" mode="aspectFill" class="img" />
-              <view v-else class="img-placeholder" />
-            </view>
-            <view class="product-info">
-              <text class="product-name">{{ item.title }}</text>
-              <view class="product-meta">
-                <text class="product-price">¥{{ item.price }}</text>
-                <text class="product-condition">{{ item.condition }}</text>
-              </view>
+    <view class="product-grid">
+      <view
+        v-for="item in goodsList"
+        :key="item._id"
+        class="product-card"
+        @tap="goDetail(item._id)"
+      >
+        <view class="product-card-inner">
+          <view class="product-img">
+            <image v-if="item.images?.length" :src="item.images[0]" mode="aspectFill" class="img" />
+            <view v-else class="img-placeholder" />
+          </view>
+          <view class="product-info">
+            <text class="product-name">{{ item.title }}</text>
+            <view class="product-meta">
+              <text class="product-price">¥{{ item.price }}</text>
+              <text class="product-condition">{{ item.condition }}</text>
             </view>
           </view>
         </view>
       </view>
-      <view class="load-tip">
-        <text v-if="loading">加载中...</text>
-        <text v-else-if="noMore">没有更多了</text>
-      </view>
-    </scroll-view>
+    </view>
+    <view class="load-tip">
+      <text v-if="loading">加载中...</text>
+      <text v-else-if="noMore">没有更多了</text>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
 import { goodsApi } from '../../api'
 
 const community = ref('幸福花园')
@@ -121,6 +113,7 @@ async function fetchGoods(reset = false) {
   } finally {
     loading.value = false
     refreshing.value = false
+    uni.stopPullDownRefresh()
   }
 }
 
@@ -137,6 +130,13 @@ function onRefresh() {
   refreshing.value = true
   fetchGoods(true)
 }
+
+onReachBottom(() => fetchGoods())
+
+onPullDownRefresh(() => {
+  refreshing.value = true
+  fetchGoods(true)
+})
 
 function goDetail(id: string) {
   uni.navigateTo({ url: `/pages/detail/index?id=${id}` })
@@ -165,12 +165,13 @@ $radius: 16rpx;
 .page {
   min-height: 100vh;
   background: $bg;
-  display: flex;
-  flex-direction: column;
+  padding-bottom: 20rpx;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .top-section {
-  padding: 20rpx 32rpx 24rpx;
+  padding: 20rpx 24rpx 24rpx;
 }
 
 .top-row {
@@ -211,6 +212,7 @@ $radius: 16rpx;
   background: $surface;
   border-radius: $radius;
   padding: 20rpx 28rpx;
+  box-sizing: border-box;
 }
 
 .search-icon {
@@ -227,7 +229,8 @@ $radius: 16rpx;
 
 .categories {
   white-space: nowrap;
-  padding: 0 32rpx 20rpx;
+  padding: 0 24rpx 20rpx;
+  overflow: hidden;
 }
 
 .cat-item {
@@ -264,11 +267,6 @@ $radius: 16rpx;
 .divider {
   height: 2rpx;
   background: $border;
-}
-
-.product-list {
-  flex: 1;
-  height: 0;
 }
 
 .product-grid {
