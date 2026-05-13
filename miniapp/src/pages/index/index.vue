@@ -1,9 +1,17 @@
 <template>
   <view class="page">
-    <!-- 搜索栏 -->
-    <view class="search-bar" @tap="goSearch">
-      <view class="search-icon" />
-      <text class="search-placeholder">搜索好物、拼团...</text>
+    <!-- 社区切换 + 搜索 -->
+    <view class="top-bar">
+      <picker :range="communities" @change="switchCommunity">
+        <view class="community-picker">
+          <text class="community-name">{{ currentCommunity }}</text>
+          <text class="community-arrow">▼</text>
+        </view>
+      </picker>
+      <view class="search-bar" @tap="goSearch">
+        <view class="search-icon" />
+        <text class="search-placeholder">搜索好物...</text>
+      </view>
     </view>
 
     <!-- 分类 -->
@@ -56,23 +64,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
-import { goodsApi } from '../../api'
+import { goodsApi, locationApi } from '../../api'
 
+const currentCommunity = ref('全部社区')
+const communities = ref<string[]>(['全部社区'])
 const currentCategory = ref('全部')
+const categories = ref([
+  { name: '全部', label: '全部' },
+  { name: '母婴', label: '母婴' },
+  { name: '玩具', label: '玩具' },
+  { name: '书籍', label: '书籍' },
+  { name: '家居', label: '家居' },
+  { name: '其他', label: '其他' },
+])
 const goodsList = ref<any[]>([])
 const page = ref(1)
 const loading = ref(false)
 const refreshing = ref(false)
 const noMore = ref(false)
-
-const categories = [
-  { name: '全部', label: '全' },
-  { name: '母婴', label: '婴' },
-  { name: '玩具', label: '玩' },
-  { name: '书籍', label: '书' },
-  { name: '家居', label: '居' },
-  { name: '拼团', label: '团' },
-]
 
 async function fetchGoods(reset = false) {
   if (loading.value) return
@@ -88,6 +97,9 @@ async function fetchGoods(reset = false) {
     const params: any = { page: page.value, pageSize: 20 }
     if (currentCategory.value !== '全部') {
       params.category = currentCategory.value
+    }
+    if (currentCommunity.value !== '全部社区') {
+      params.community = currentCommunity.value
     }
     const data = await goodsApi.getList(params)
     const list = data.list || []
@@ -109,6 +121,11 @@ async function fetchGoods(reset = false) {
 
 function selectCategory(name: string) {
   currentCategory.value = name
+  fetchGoods(true)
+}
+
+function switchCommunity(e: any) {
+  currentCommunity.value = communities.value[e.detail.value]
   fetchGoods(true)
 }
 
@@ -136,7 +153,12 @@ function goSearch() {
   // TODO: 搜索页
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const data = await locationApi.getList()
+    const communityList = data.communities || []
+    communities.value = ['全部社区', ...communityList.map((l: any) => l.name)]
+  } catch {}
   fetchGoods(true)
 })
 </script>
@@ -160,14 +182,46 @@ $radius: 16rpx;
   overflow-x: hidden;
 }
 
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 20rpx 24rpx;
+}
+
+.community-picker {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 20rpx;
+  background: $surface;
+  border-radius: $radius;
+  flex-shrink: 0;
+}
+
+.community-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $text;
+  max-width: 160rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.community-arrow {
+  font-size: 20rpx;
+  color: $text-tertiary;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
   gap: 16rpx;
   background: $surface;
   border-radius: $radius;
-  margin: 20rpx 24rpx;
-  padding: 20rpx 28rpx;
+  padding: 16rpx 24rpx;
+  flex: 1;
   box-sizing: border-box;
 }
 

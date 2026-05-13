@@ -9,7 +9,7 @@ const goods = new Hono()
 // 获取商品列表（公开）
 goods.get('/', async (c) => {
   try {
-    const { page = '1', pageSize = '20', category, keyword, condition } = c.req.query()
+    const { page = '1', pageSize = '20', category, keyword, condition, community } = c.req.query()
     const p = Number(page)
     const ps = Math.min(Number(pageSize), 50)
     const skip = (p - 1) * ps
@@ -25,6 +25,9 @@ goods.get('/', async (c) => {
     }
     if (keyword) {
       query.title = new RegExp(keyword, 'i')
+    }
+    if (community) {
+      query.community = community
     }
 
     const [listRes, countRes] = await Promise.all([
@@ -135,6 +138,7 @@ goods.post('/', authMiddleware, async (c) => {
         community: userInfo.community || '',
         building: userInfo.building || '',
       },
+      community: userInfo.community || '',
       title: body.title.trim(),
       description: (body.description || '').slice(0, 300),
       images: body.images || [],

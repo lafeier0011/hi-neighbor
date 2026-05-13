@@ -22,6 +22,7 @@
         <thead>
           <tr>
             <th>商品</th>
+            <th>社区</th>
             <th>价格</th>
             <th>成色</th>
             <th>发布者</th>
@@ -35,6 +36,7 @@
             <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               {{ g.title }}
             </td>
+            <td>{{ g.community || g.publisherInfo?.community || '-' }}</td>
             <td>¥{{ g.price }}</td>
             <td>{{ g.condition }}</td>
             <td>{{ g.publisherInfo?.nickname || '-' }}</td>

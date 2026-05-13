@@ -300,7 +300,8 @@ async function submit() {
 
 onMounted(async () => {
   try {
-    locations.value = await locationApi.getList()
+    const data = await locationApi.getList()
+    locations.value = data.locations || []
   } catch {}
 })
 </script>

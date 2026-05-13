@@ -169,11 +169,11 @@ admin.post('/announcements', async (c) => {
   }
 })
 
-// ===== 推荐地址管理 =====
+// ===== 地址与社区管理 =====
 
 admin.get('/locations', async (c) => {
   try {
-    const res = await getCollection('locations').orderBy('orderBy', 'asc').limit(100).get()
+    const res = await getCollection('locations').orderBy('orderBy', 'asc').limit(200).get()
     return c.json({ code: 0, message: 'success', data: res.data || [] })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)
@@ -183,15 +183,37 @@ admin.get('/locations', async (c) => {
 admin.post('/locations', async (c) => {
   try {
     const body = await c.req.json()
-    if (!body.name) return c.json({ code: 400, message: '地址名称不能为空' }, 400)
+    if (!body.name) return c.json({ code: 400, message: '名称不能为空' }, 400)
+    if (!['community', 'location'].includes(body.type)) {
+      return c.json({ code: 400, message: '类型无效，需为 community 或 location' }, 400)
+    }
 
     await getCollection('locations').add({
       name: body.name,
-      community: body.community || '',
+      type: body.type,
       orderBy: body.orderBy || 99,
       createdAt: new Date(),
     })
 
+    return c.json({ code: 0, message: 'success' })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message }, 500)
+  }
+})
+
+admin.put('/locations/:id', async (c) => {
+  try {
+    const { id } = c.req.param()
+    const body = await c.req.json()
+    if (!body.name) return c.json({ code: 400, message: '名称不能为空' }, 400)
+
+    const updateData: any = {
+      name: body.name,
+      orderBy: body.orderBy ?? 99,
+    }
+    if (body.type) updateData.type = body.type
+
+    await getCollection('locations').doc(id).update(updateData)
     return c.json({ code: 0, message: 'success' })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)
