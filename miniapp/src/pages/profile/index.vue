@@ -117,7 +117,7 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
 
 .page { min-height: 100vh; background: $surface; overflow-x: hidden; }
 
-.profile-header { background: $text; padding: 48rpx 32rpx 64rpx; }
+.profile-header { background: $text; padding: 32rpx 32rpx 64rpx; }
 .profile-top { display: flex; align-items: center; gap: 24rpx; }
 .avatar { width: 112rpx; height: 112rpx; border-radius: 50%; background: $surface;
   border: 4rpx solid rgba(255,255,255,0.15); overflow: hidden; }

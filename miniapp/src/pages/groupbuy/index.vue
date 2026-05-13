@@ -1,9 +1,5 @@
 <template>
   <view class="page">
-    <view class="nav-bar">
-      <text class="nav-title">社区拼团</text>
-    </view>
-
     <!-- 筛选 -->
     <scroll-view scroll-x class="filter-tabs" :show-scrollbar="false" enhanced :bounces="false">
       <view
@@ -157,9 +153,6 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $success: #3a7d5c; $radius: 16rpx;
 
 .page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
-.nav-bar { height: 88rpx; display: flex; align-items: center; justify-content: center;
-  border-bottom: 2rpx solid $border; }
-.nav-title { font-size: 32rpx; font-weight: 600; }
 
 .filter-tabs { white-space: nowrap; padding: 20rpx 24rpx 20rpx 24rpx; }
 .filter-tab { display: inline-flex; padding: 12rpx 28rpx; border-radius: 40rpx;

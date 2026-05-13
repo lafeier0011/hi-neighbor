@@ -1,11 +1,11 @@
 {
   "pages": [
-    { "path": "pages/index/index", "style": { "navigationBarTitleText": "邻趣集市", "navigationStyle": "custom", "enablePullDownRefresh": true } },
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "邻趣集市", "enablePullDownRefresh": true } },
     { "path": "pages/publish/index", "style": { "navigationBarTitleText": "发布", "navigationStyle": "custom" } },
     { "path": "pages/detail/index", "style": { "navigationBarTitleText": "商品详情", "navigationStyle": "custom" } },
     { "path": "pages/groupbuy/index", "style": { "navigationBarTitleText": "社区拼团" } },
     { "path": "pages/announce/index", "style": { "navigationBarTitleText": "社区公告" } },
-    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的", "navigationStyle": "custom" } }
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

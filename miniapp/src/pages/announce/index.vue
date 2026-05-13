@@ -1,10 +1,5 @@
 <template>
   <view class="page">
-    <view class="header">
-      <text class="header-title">社区公告</text>
-      <text class="header-badge" v-if="announces.length">{{ announces.length }} 条</text>
-    </view>
-
     <scroll-view scroll-y class="list">
       <view v-for="item in announces" :key="item._id" class="ann-card" @tap="showDetail(item)">
         <view class="card-top">
@@ -80,10 +75,6 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $radius: 16rpx;
 
 .page { min-height: 100vh; background: $bg; overflow-x: hidden; }
-.header { display: flex; justify-content: space-between; align-items: center;
-  padding: 28rpx 24rpx; border-bottom: 2rpx solid $border; }
-.header-title { font-size: 36rpx; font-weight: 700; }
-.header-badge { font-size: 22rpx; color: $text-tri; }
 .list { padding: 20rpx 24rpx; box-sizing: border-box; }
 
 .ann-card { padding: 28rpx; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 20rpx; box-sizing: border-box; }

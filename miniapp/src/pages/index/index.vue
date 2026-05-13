@@ -1,18 +1,9 @@
 <template>
   <view class="page">
-    <!-- 顶部 -->
-    <view class="top-section">
-      <view class="top-row">
-        <text class="app-name">邻趣集市</text>
-        <view class="location">
-          <view class="location-dot" />
-          <text class="location-text">{{ community }}</text>
-        </view>
-      </view>
-      <view class="search-bar" @tap="goSearch">
-        <view class="search-icon" />
-        <text class="search-placeholder">搜索好物、拼团...</text>
-      </view>
+    <!-- 搜索栏 -->
+    <view class="search-bar" @tap="goSearch">
+      <view class="search-icon" />
+      <text class="search-placeholder">搜索好物、拼团...</text>
     </view>
 
     <!-- 分类 -->
@@ -67,7 +58,6 @@ import { ref, onMounted } from 'vue'
 import { onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
 import { goodsApi } from '../../api'
 
-const community = ref('幸福花园')
 const currentCategory = ref('全部')
 const goodsList = ref<any[]>([])
 const page = ref(1)
@@ -170,47 +160,13 @@ $radius: 16rpx;
   overflow-x: hidden;
 }
 
-.top-section {
-  padding: 20rpx 24rpx 24rpx;
-}
-
-.top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24rpx;
-}
-
-.app-name {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: $text;
-}
-
-.location {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.location-dot {
-  width: 10rpx;
-  height: 10rpx;
-  border-radius: 50%;
-  background: $accent;
-}
-
-.location-text {
-  font-size: 24rpx;
-  color: $text-tertiary;
-}
-
 .search-bar {
   display: flex;
   align-items: center;
   gap: 16rpx;
   background: $surface;
   border-radius: $radius;
+  margin: 20rpx 24rpx;
   padding: 20rpx 28rpx;
   box-sizing: border-box;
 }
