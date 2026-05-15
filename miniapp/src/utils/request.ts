@@ -60,4 +60,30 @@ export const http = {
 
   delete: <T = any>(url: string, data?: any, needAuth = true) =>
     request<T>({ url, method: 'DELETE', data, needAuth }),
+
+  /** 上传单个文件，返回 { url } */
+  uploadFile(filePath: string): Promise<{ url: string }> {
+    return new Promise((resolve, reject) => {
+      const token = getToken()
+      uni.uploadFile({
+        url: `${ENV.BASE_URL}/api/upload`,
+        filePath,
+        name: 'file',
+        header: token ? { Authorization: `Bearer ${token}` } : {},
+        success: (res) => {
+          const data = JSON.parse(res.data)
+          if (data.code === 0) {
+            resolve(data.data)
+          } else {
+            uni.showToast({ title: data.message || '上传失败', icon: 'none' })
+            reject(data)
+          }
+        },
+        fail: (err) => {
+          uni.showToast({ title: '上传失败', icon: 'none' })
+          reject(err)
+        },
+      })
+    })
+  },
 }

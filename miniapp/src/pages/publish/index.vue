@@ -191,15 +191,18 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { goodsApi, locationApi } from '../../api'
+import { http } from '../../utils/request'
 import {
   validateTitle, validatePrice, validateCondition,
   validateWechat, validatePhone, validateContact, validateDesc,
 } from '../../utils/validate'
 
 const type = ref('goods')
-const images = ref<string[]>([])
+const images = ref<string[]>([])       // 本地临时路径（预览用）
+const imageUrls = ref<string[]>([])     // 上传后的服务器 URL
 const showLocationPicker = ref(false)
 const locations = ref<any[]>([])
+const uploading = ref(false)
 
 const conditions = ['全新', '9成新', '7成新', '5成新', '一般']
 const categories = ['母婴', '玩具', '书籍', '家居', '服饰', '数码', '其他']
@@ -227,6 +230,20 @@ async function chooseImage() {
   if (res?.tempFilePaths) {
     images.value = [...images.value, ...res.tempFilePaths]
   }
+}
+
+async function uploadImages(): Promise<string[]> {
+  const urls: string[] = []
+  for (const localPath of images.value) {
+    // 如果已经是 http 开头的 URL，说明已上传过
+    if (localPath.startsWith('http')) {
+      urls.push(localPath)
+      continue
+    }
+    const res = await http.uploadFile(localPath)
+    urls.push(res.url)
+  }
+  return urls
 }
 
 function selectLocation(name: string) {
@@ -278,6 +295,14 @@ async function submit() {
 
   uni.showLoading({ title: '发布中...' })
   try {
+    // 先上传图片
+    let uploadedImages: string[] = []
+    if (images.value.length > 0) {
+      uni.showLoading({ title: '上传图片中...' })
+      uploadedImages = await uploadImages()
+    }
+
+    uni.showLoading({ title: '发布中...' })
     await goodsApi.publish({
       title: form.title,
       description: form.description,
@@ -288,7 +313,7 @@ async function submit() {
       location: form.location,
       contactWechat: form.contactWechat,
       contactPhone: form.contactPhone,
-      images: images.value,
+      images: uploadedImages,
     })
     uni.hideLoading()
     uni.showToast({ title: '发布成功', icon: 'success' })

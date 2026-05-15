@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { initCollections } from './utils/cloudbase'
 import authRoutes from './routes/auth'
 import goodsRoutes from './routes/goods'
@@ -9,12 +10,16 @@ import locationRoutes from './routes/location'
 import groupbuyRoutes from './routes/groupbuy'
 import announceRoutes from './routes/announce'
 import adminRoutes from './routes/admin'
+import uploadRoutes from './routes/upload'
 
 const app = new Hono()
 
 // 全局中间件
 app.use('*', cors())
 app.use('*', logger())
+
+// 静态文件服务：uploads 目录
+app.use('/uploads/*', serveStatic({ root: './' }))
 
 // 健康检查
 app.get('/', (c) => c.json({
@@ -31,6 +36,7 @@ app.route('/api/favorites', favoritesRoutes)
 app.route('/api/locations', locationRoutes)
 app.route('/api/groupbuys', groupbuyRoutes)
 app.route('/api/announcements', announceRoutes)
+app.route('/api/upload', uploadRoutes)
 app.route('/admin', adminRoutes)
 
 // 404
