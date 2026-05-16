@@ -15,7 +15,7 @@
 
     <!-- 拼团列表 -->
     <scroll-view scroll-y class="list" @scrolltolower="loadMore">
-      <view v-for="item in list" :key="item._id" class="group-card">
+      <view v-for="item in list" :key="item._id" class="group-card" @tap="goDetail(item._id)">
         <view class="card-header">
           <text class="card-title">{{ item.title }}</text>
           <text class="card-badge" :class="item.status">{{ statusText(item.status) }}</text>
@@ -52,7 +52,7 @@
         <view
           class="join-btn"
           :class="{ disabled: item.status !== 'pending' || item.participants?.includes(userStore.userInfo?.openid) }"
-          @tap="joinGroup(item)"
+          @tap.stop="joinGroup(item)"
         >
           <text>{{ joinBtnText(item) }}</text>
         </view>
@@ -64,7 +64,16 @@
         <text v-if="loading">加载中...</text>
         <text v-else-if="noMore">没有更多了</text>
       </view>
+
+      <!-- 底部留白给浮动按钮 -->
+      <view style="height: 120rpx;" />
     </scroll-view>
+
+    <!-- 发起拼团浮动按钮 -->
+    <view class="fab" @tap="goPublish">
+      <text class="fab-icon">+</text>
+      <text class="fab-text">发起拼团</text>
+    </view>
   </view>
 </template>
 
@@ -106,9 +115,21 @@ function joinBtnText(item: any) {
 function formatDeadline(deadline: string) {
   const diff = new Date(deadline).getTime() - Date.now()
   if (diff <= 0) return '已截止'
-  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  const hours = Math.floor((diff % 86400000) / 3600000)
   const mins = Math.floor((diff % 3600000) / 60000)
-  return `${hours}天${hours > 24 ? '' : hours + '小时'}${mins}分钟`
+  if (days > 0) {
+    return `${days}天${hours}小时${mins}分钟`
+  }
+  return `${hours}小时${mins}分钟`
+}
+
+function goDetail(id: string) {
+  uni.navigateTo({ url: `/pages/groupbuy-detail/index?id=${id}` })
+}
+
+function goPublish() {
+  uni.navigateTo({ url: '/pages/groupbuy-publish/index' })
 }
 
 async function fetchList(reset = false) {
@@ -152,7 +173,7 @@ $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $success: #3a7d5c; $radius: 16rpx;
 
-.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
+.page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; position: relative; }
 
 .filter-tabs { white-space: nowrap; padding: 20rpx 24rpx 20rpx 24rpx; }
 .filter-tab { display: inline-flex; padding: 12rpx 28rpx; border-radius: 40rpx;
@@ -194,4 +215,14 @@ $success: #3a7d5c; $radius: 16rpx;
 }
 .countdown { text-align: center; font-size: 22rpx; color: $text-tri; margin-top: 12rpx; display: block; }
 .load-tip { text-align: center; padding: 24rpx; font-size: 24rpx; color: $text-tri; }
+
+/* 浮动按钮 */
+.fab {
+  position: fixed; right: 32rpx; bottom: 120rpx;
+  background: $accent; border-radius: 48rpx; padding: 20rpx 32rpx;
+  display: flex; align-items: center; gap: 8rpx;
+  box-shadow: 0 8rpx 24rpx rgba(194, 112, 62, 0.3); z-index: 10;
+}
+.fab-icon { font-size: 36rpx; color: #fff; font-weight: 300; }
+.fab-text { font-size: 26rpx; color: #fff; font-weight: 600; }
 </style>

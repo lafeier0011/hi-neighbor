@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { initCollections } from './utils/cloudbase'
+import { checkExpiredGroupbuys } from './utils/groupbuy-cron'
 import authRoutes from './routes/auth'
 import goodsRoutes from './routes/goods'
 import favoritesRoutes from './routes/favorites'
@@ -54,5 +55,8 @@ const port = Number(process.env.PORT) || 3000
 console.log(`🚀 Hi-Neighbor API Server`)
 console.log(`   Port: ${port}`)
 console.log(`   Env: ${process.env.CLOUDBASE_ENV_ID || 'not set'}`)
+
+// 启动时检查一次过期拼团
+checkExpiredGroupbuys().catch(e => console.error('Startup groupbuy check failed:', e))
 
 export default app

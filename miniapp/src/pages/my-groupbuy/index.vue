@@ -20,6 +20,7 @@
           v-for="item in filteredList"
           :key="item._id"
           class="gb-card"
+          @tap="goDetail(item._id)"
         >
           <view class="gb-top">
             <text class="gb-title">{{ item.title }}</text>
@@ -131,6 +132,10 @@ function formatTime(dateStr: string) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+function goDetail(id: string) {
+  uni.navigateTo({ url: `/pages/groupbuy-detail/index?id=${id}` })
 }
 
 onMounted(() => {

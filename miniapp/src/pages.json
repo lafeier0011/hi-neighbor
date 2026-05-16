@@ -9,6 +9,8 @@
     { "path": "pages/my-goods/index", "style": { "navigationBarTitleText": "我的发布" } },
     { "path": "pages/my-favorites/index", "style": { "navigationBarTitleText": "我的收藏" } },
     { "path": "pages/my-groupbuy/index", "style": { "navigationBarTitleText": "我的拼团" } },
+    { "path": "pages/groupbuy-publish/index", "style": { "navigationBarTitleText": "发起拼团" } },
+    { "path": "pages/groupbuy-detail/index", "style": { "navigationBarTitleText": "拼团详情" } },
     { "path": "pages/settings/index", "style": { "navigationBarTitleText": "个人设置" } }
   ],
   "globalStyle": {

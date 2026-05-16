@@ -86,13 +86,33 @@ export const groupbuyApi = {
     return http.get('/api/groupbuys', params, false)
   },
 
+  /** 拼团详情 */
+  getDetail(id: string) {
+    return http.get(`/api/groupbuys/${id}`, undefined, true)
+  },
+
   /** 参团 */
   join(id: string) {
     return http.post(`/api/groupbuys/${id}/join`)
   },
 
+  /** 取消参团 */
+  leave(id: string) {
+    return http.post(`/api/groupbuys/${id}/leave`)
+  },
+
+  /** 发布拼团 */
+  create(data: any) {
+    return http.post('/api/groupbuys', data)
+  },
+
   /** 我参与/发起的拼团 */
   getMyList(params?: { page?: number; pageSize?: number }) {
     return http.get('/api/groupbuys/my', params)
+  },
+
+  /** 我发起的拼团 */
+  getMyOrganized(params?: { page?: number; pageSize?: number }) {
+    return http.get('/api/groupbuys/my/organized', params)
   },
 }
