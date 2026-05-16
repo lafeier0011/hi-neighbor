@@ -12,6 +12,8 @@ import groupbuyRoutes from './routes/groupbuy'
 import announceRoutes from './routes/announce'
 import adminRoutes from './routes/admin'
 import uploadRoutes from './routes/upload'
+import addressRoutes from './routes/address'
+import feedbackRoutes from './routes/feedback'
 
 const app = new Hono()
 
@@ -38,6 +40,8 @@ app.route('/api/locations', locationRoutes)
 app.route('/api/groupbuys', groupbuyRoutes)
 app.route('/api/announcements', announceRoutes)
 app.route('/api/upload', uploadRoutes)
+app.route('/api/addresses', addressRoutes)
+app.route('/api/feedback', feedbackRoutes)
 app.route('/admin', adminRoutes)
 
 // 404

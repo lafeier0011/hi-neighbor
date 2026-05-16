@@ -122,8 +122,12 @@ function goSetting() {
 function goSettingExtra(type: string) {
   if (type === 'about') {
     uni.showModal({ title: '邻趣集市', content: 'v1.0.0\n社区二手交易 + 拼团服务', showCancel: false })
-  } else {
-    uni.showToast({ title: '开发中', icon: 'none' })
+  } else if (type === 'address') {
+    if (!isLoggedIn.value) { handleLogin(); return }
+    uni.navigateTo({ url: '/pages/address/list' })
+  } else if (type === 'feedback') {
+    if (!isLoggedIn.value) { handleLogin(); return }
+    uni.navigateTo({ url: '/pages/feedback/index' })
   }
 }
 

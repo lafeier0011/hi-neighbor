@@ -8,14 +8,52 @@
           <text class="community-arrow">▼</text>
         </view>
       </picker>
-      <view class="search-bar" @tap="goSearch">
+      <view class="search-bar" @tap="toggleSearch">
         <view class="search-icon" />
-        <text class="search-placeholder">搜索好物...</text>
+        <text class="search-placeholder">{{ searchKeyword || '搜索好物...' }}</text>
+      </view>
+    </view>
+
+    <!-- 搜索模式 -->
+    <view v-if="searchMode" class="search-panel">
+      <view class="search-input-row">
+        <input
+          v-model="searchKeyword"
+          class="search-input"
+          placeholder="搜索好物..."
+          focus
+          confirm-type="search"
+          @confirm="doSearch"
+          @input="onSearchInput"
+        />
+        <view class="search-cancel" @tap="cancelSearch">
+          <text>取消</text>
+        </view>
+      </view>
+
+      <!-- 搜索历史 -->
+      <view v-if="searchHistory.length > 0 && !hasSearched" class="history-section">
+        <view class="history-header">
+          <text class="history-title">搜索历史</text>
+          <view class="history-clear" @tap="clearHistory">
+            <text>清空</text>
+          </view>
+        </view>
+        <view class="history-tags">
+          <view
+            v-for="(tag, idx) in searchHistory"
+            :key="idx"
+            class="history-tag"
+            @tap="searchByHistory(tag)"
+          >
+            <text>{{ tag }}</text>
+          </view>
+        </view>
       </view>
     </view>
 
     <!-- 分类 -->
-    <scroll-view class="categories" scroll-x :show-scrollbar="false" enhanced :bounces="false">
+    <scroll-view v-if="!searchMode" class="categories" scroll-x :show-scrollbar="false" enhanced :bounces="false">
       <view
         v-for="cat in categories"
         :key="cat.name"
@@ -29,10 +67,19 @@
       </view>
     </scroll-view>
 
-    <view class="divider" />
+    <view v-if="!searchMode" class="divider" />
+
+    <!-- 骨架屏 -->
+    <view v-if="skeletonLoading" class="skeleton-grid">
+      <view v-for="i in 4" :key="i" class="skeleton-card">
+        <view class="skeleton-img" />
+        <view class="skeleton-text" />
+        <view class="skeleton-text short" />
+      </view>
+    </view>
 
     <!-- 商品列表 -->
-    <view class="product-grid">
+    <view v-else class="product-grid">
       <view
         v-for="item in goodsList"
         :key="item._id"
@@ -45,7 +92,8 @@
             <view v-else class="img-placeholder" />
           </view>
           <view class="product-info">
-            <text class="product-name">{{ item.title }}</text>
+            <!-- 搜索高亮标题 -->
+            <text class="product-name" v-html="highlightTitle(item.title)" />
             <view class="product-meta">
               <text class="product-price">¥{{ item.price }}</text>
               <text class="product-condition">{{ item.condition }}</text>
@@ -82,6 +130,85 @@ const page = ref(1)
 const loading = ref(false)
 const refreshing = ref(false)
 const noMore = ref(false)
+const skeletonLoading = ref(true)
+
+// 搜索相关
+const searchMode = ref(false)
+const searchKeyword = ref('')
+const searchHistory = ref<string[]>([])
+const hasSearched = ref(false)
+
+// 搜索历史本地存储
+const HISTORY_KEY = 'search_history'
+const MAX_HISTORY = 10
+
+function loadHistory() {
+  try {
+    const raw = uni.getStorageSync(HISTORY_KEY)
+    searchHistory.value = raw ? JSON.parse(raw) : []
+  } catch {
+    searchHistory.value = []
+  }
+}
+
+function saveHistory(keyword: string) {
+  if (!keyword.trim()) return
+  const list = searchHistory.value.filter(k => k !== keyword.trim())
+  list.unshift(keyword.trim())
+  if (list.length > MAX_HISTORY) list.length = MAX_HISTORY
+  searchHistory.value = list
+  uni.setStorageSync(HISTORY_KEY, JSON.stringify(list))
+}
+
+function clearHistory() {
+  searchHistory.value = []
+  uni.removeStorageSync(HISTORY_KEY)
+}
+
+function toggleSearch() {
+  searchMode.value = true
+  hasSearched.value = false
+  loadHistory()
+}
+
+function cancelSearch() {
+  searchMode.value = false
+  searchKeyword.value = ''
+  hasSearched.value = false
+  // 恢复全部商品
+  fetchGoods(true)
+}
+
+function onSearchInput() {
+  // 实时输入，不做处理
+}
+
+function doSearch() {
+  const kw = searchKeyword.value.trim()
+  if (!kw) return
+  saveHistory(kw)
+  hasSearched.value = true
+  searchMode.value = false
+  fetchGoods(true)
+}
+
+function searchByHistory(tag: string) {
+  searchKeyword.value = tag
+  saveHistory(tag)
+  hasSearched.value = true
+  searchMode.value = false
+  fetchGoods(true)
+}
+
+// 搜索高亮
+function highlightTitle(title: string): string {
+  const kw = searchKeyword.value.trim()
+  if (!kw) return title
+  // 转义正则特殊字符
+  const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const regex = new RegExp(`(${escaped})`, 'gi')
+  return title.replace(regex, '<span style="color:#c2703e;font-weight:600">$1</span>')
+}
 
 async function fetchGoods(reset = false) {
   if (loading.value) return
@@ -101,6 +228,10 @@ async function fetchGoods(reset = false) {
     if (currentCommunity.value !== '全部社区') {
       params.community = currentCommunity.value
     }
+    // 搜索关键词
+    if (searchKeyword.value.trim()) {
+      params.keyword = searchKeyword.value.trim()
+    }
     const data = await goodsApi.getList(params)
     const list = data.list || []
     if (reset) {
@@ -115,6 +246,7 @@ async function fetchGoods(reset = false) {
   } finally {
     loading.value = false
     refreshing.value = false
+    skeletonLoading.value = false
     uni.stopPullDownRefresh()
   }
 }
@@ -129,15 +261,6 @@ function switchCommunity(e: any) {
   fetchGoods(true)
 }
 
-function loadMore() {
-  fetchGoods()
-}
-
-function onRefresh() {
-  refreshing.value = true
-  fetchGoods(true)
-}
-
 onReachBottom(() => fetchGoods())
 
 onPullDownRefresh(() => {
@@ -147,10 +270,6 @@ onPullDownRefresh(() => {
 
 function goDetail(id: string) {
   uni.navigateTo({ url: `/pages/detail/index?id=${id}` })
-}
-
-function goSearch() {
-  // TODO: 搜索页
 }
 
 onMounted(async () => {
@@ -237,6 +356,40 @@ $radius: 16rpx;
   color: $text-tertiary;
 }
 
+/* 搜索面板 */
+.search-panel {
+  padding: 0 24rpx 20rpx;
+}
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  background: $surface;
+  border-radius: $radius;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: $text;
+}
+.search-cancel {
+  padding: 16rpx;
+  text { font-size: 28rpx; color: $accent; }
+}
+
+/* 搜索历史 */
+.history-section { margin-top: 24rpx; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
+.history-title { font-size: 26rpx; color: $text-secondary; font-weight: 600; }
+.history-clear { padding: 8rpx 16rpx; text { font-size: 24rpx; color: $text-tertiary; } }
+.history-tags { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.history-tag {
+  padding: 12rpx 24rpx; background: $surface; border-radius: 32rpx;
+  text { font-size: 24rpx; color: $text-secondary; }
+}
+
 .categories {
   white-space: nowrap;
   padding: 0 24rpx 20rpx;
@@ -277,6 +430,43 @@ $radius: 16rpx;
 .divider {
   height: 2rpx;
   background: $border;
+}
+
+/* 骨架屏 */
+.skeleton-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 16rpx 20rpx 0;
+  box-sizing: border-box;
+}
+.skeleton-card {
+  width: 50%;
+  box-sizing: border-box;
+  padding: 0 10rpx;
+  margin-bottom: 20rpx;
+}
+.skeleton-img {
+  height: 240rpx;
+  background: $surface;
+  border-radius: $radius $radius 0 0;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+.skeleton-text {
+  height: 28rpx;
+  background: $surface;
+  margin: 16rpx 20rpx;
+  border-radius: 8rpx;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+  &.short {
+    width: 60%;
+    margin-bottom: 20rpx;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .product-grid {

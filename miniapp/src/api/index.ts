@@ -116,3 +116,37 @@ export const groupbuyApi = {
     return http.get('/api/groupbuys/my/organized', params)
   },
 }
+
+export const addressApi = {
+  /** 获取地址列表 */
+  getList() {
+    return http.get('/api/addresses')
+  },
+
+  /** 新增地址 */
+  create(data: { receiverName: string; phone: string; detail: string; isDefault?: boolean }) {
+    return http.post('/api/addresses', data)
+  },
+
+  /** 编辑地址 */
+  update(id: string, data: { receiverName: string; phone: string; detail: string; isDefault?: boolean }) {
+    return http.put(`/api/addresses/${id}`, data)
+  },
+
+  /** 删除地址 */
+  delete(id: string) {
+    return http.delete(`/api/addresses/${id}`)
+  },
+}
+
+export const feedbackApi = {
+  /** 提交反馈 */
+  create(data: { content: string; contact?: string; images?: string[] }) {
+    return http.post('/api/feedback', data)
+  },
+
+  /** 我的反馈列表 */
+  getMine(params?: { page?: number; pageSize?: number }) {
+    return http.get('/api/feedback/mine', params)
+  },
+}

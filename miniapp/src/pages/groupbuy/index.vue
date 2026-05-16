@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { onPullDownRefresh } from '@dcloudio/uni-app'
 import { groupbuyApi } from '../../api'
 import { useUserStore } from '../../store/user'
 
@@ -151,6 +152,10 @@ async function fetchList(reset = false) {
 }
 
 function loadMore() { fetchList() }
+
+onPullDownRefresh(() => {
+  fetchList(true).finally(() => uni.stopPullDownRefresh())
+})
 
 async function joinGroup(item: any) {
   if (item.status !== 'pending') return

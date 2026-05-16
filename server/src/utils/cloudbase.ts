@@ -29,7 +29,7 @@ export function getCollection(name: string) {
 
 // 初始化数据库集合（检查）
 export async function initCollections() {
-  const names = ['users', 'goods', 'groupbuys', 'announcements', 'favorites', 'locations', 'admin_logs']
+  const names = ['users', 'goods', 'groupbuys', 'announcements', 'favorites', 'locations', 'admin_logs', 'addresses', 'feedbacks']
   console.log(`Checking ${names.length} collections...`)
   // CloudBase 集合需要在控制台手动创建，这里只做提示
   for (const name of names) {
