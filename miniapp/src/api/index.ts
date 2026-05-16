@@ -42,6 +42,16 @@ export const authApi = {
   updateProfile(data: any) {
     return http.put('/api/auth/profile', data)
   },
+
+  /** 获取我发布的商品列表 */
+  getMyGoods(params: { page?: number; pageSize?: number; status?: string }) {
+    return http.get('/api/auth/my-goods', params)
+  },
+
+  /** 获取我的统计数据 */
+  getMyStats() {
+    return http.get('/api/auth/my-stats')
+  },
 }
 
 export const favoritesApi = {
@@ -79,5 +89,10 @@ export const groupbuyApi = {
   /** 参团 */
   join(id: string) {
     return http.post(`/api/groupbuys/${id}/join`)
+  },
+
+  /** 我参与/发起的拼团 */
+  getMyList(params?: { page?: number; pageSize?: number }) {
+    return http.get('/api/groupbuys/my', params)
   },
 }

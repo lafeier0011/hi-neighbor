@@ -15,15 +15,15 @@
 
     <!-- 统计 -->
     <view class="stats-bar">
-      <view class="stat-item">
+      <view class="stat-item" @tap="goMy('published')">
         <text class="stat-num">{{ myStats.published }}</text>
         <text class="stat-label">发布</text>
       </view>
-      <view class="stat-item">
+      <view class="stat-item" @tap="goMy('favorites')">
         <text class="stat-num">{{ myStats.favorites }}</text>
         <text class="stat-label">收藏</text>
       </view>
-      <view class="stat-item">
+      <view class="stat-item" @tap="goMy('groupbuy')">
         <text class="stat-num">{{ myStats.groupbuy }}</text>
         <text class="stat-label">参团</text>
       </view>
@@ -58,17 +58,22 @@
       </view>
 
       <view class="menu-group">
-        <view class="menu-item" @tap="goSetting('address')">
+        <view class="menu-item" @tap="goSetting">
+          <view class="menu-dot" />
+          <text class="menu-text">个人设置</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" @tap="goSettingExtra('address')">
           <view class="menu-dot light" />
           <text class="menu-text">收货地址</text>
           <text class="menu-arrow">›</text>
         </view>
-        <view class="menu-item" @tap="goSetting('feedback')">
+        <view class="menu-item" @tap="goSettingExtra('feedback')">
           <view class="menu-dot light" />
           <text class="menu-text">意见反馈</text>
           <text class="menu-arrow">›</text>
         </view>
-        <view class="menu-item" @tap="goSetting('about')">
+        <view class="menu-item" @tap="goSettingExtra('about')">
           <view class="menu-dot light" />
           <text class="menu-text">关于邻趣集市</text>
           <text class="menu-arrow">›</text>
@@ -81,6 +86,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '../../store/user'
+import { authApi } from '../../api'
 
 const userStore = useUserStore()
 const myStats = ref({ published: 0, favorites: 0, groupbuy: 0 })
@@ -92,13 +98,28 @@ async function handleLogin() {
   await userStore.login()
 }
 
-function goMy(type: string) {
-  if (!isLoggedIn.value) { handleLogin(); return }
-  // TODO: 跳转对应页面
-  uni.showToast({ title: '开发中', icon: 'none' })
+// 跳转到各子页面
+const pageMap: Record<string, string> = {
+  published: '/pages/my-goods/index',
+  favorites: '/pages/my-favorites/index',
+  groupbuy: '/pages/my-groupbuy/index',
 }
 
-function goSetting(type: string) {
+function goMy(type: string) {
+  if (!isLoggedIn.value) { handleLogin(); return }
+  const url = pageMap[type]
+  if (url) {
+    uni.navigateTo({ url })
+  }
+}
+
+// 跳转设置页
+function goSetting() {
+  if (!isLoggedIn.value) { handleLogin(); return }
+  uni.navigateTo({ url: '/pages/settings/index' })
+}
+
+function goSettingExtra(type: string) {
   if (type === 'about') {
     uni.showModal({ title: '邻趣集市', content: 'v1.0.0\n社区二手交易 + 拼团服务', showCancel: false })
   } else {
@@ -106,8 +127,17 @@ function goSetting(type: string) {
   }
 }
 
+// 获取统计数据
+async function fetchStats() {
+  if (!isLoggedIn.value) return
+  try {
+    const data = await authApi.getMyStats()
+    myStats.value = data
+  } catch {}
+}
+
 onMounted(() => {
-  // TODO: 获取统计数据
+  fetchStats()
 })
 </script>
 

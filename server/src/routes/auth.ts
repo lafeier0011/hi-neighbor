@@ -151,6 +151,63 @@ auth.get('/profile', authMiddleware, async (c) => {
   return c.json({ code: 0, message: 'success', data: userInfo })
 })
 
+// 获取我发布的商品列表
+auth.get('/my-goods', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user') as JwtPayload
+    const { page = '1', pageSize = '20', status = 'all' } = c.req.query()
+    const p = Number(page)
+    const ps = Number(pageSize)
+    const skip = (p - 1) * ps
+
+    const query: any = { publisherId: user.openid }
+    if (status !== 'all') {
+      query.status = status
+    }
+
+    const [listRes, countRes] = await Promise.all([
+      getCollection('goods').where(query).orderBy('createdAt', 'desc').skip(skip).limit(ps).get(),
+      getCollection('goods').where(query).count(),
+    ])
+
+    return c.json({
+      code: 0,
+      message: 'success',
+      data: { list: listRes.data || [], total: countRes.total || 0, page: p, pageSize: ps },
+    })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message }, 500)
+  }
+})
+
+// 获取我的统计数据
+auth.get('/my-stats', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user') as JwtPayload
+
+    const [publishedRes, favoritesRes, groupbuyRes] = await Promise.all([
+      getCollection('goods').where({ publisherId: user.openid }).count(),
+      getCollection('favorites').where({ userId: user.openid }).count(),
+      // 查询我参与的拼团（participants 包含我的 openid）或我发起的
+      getCollection('groupbuys').where({
+        participants: user.openid,
+      }).count(),
+    ])
+
+    return c.json({
+      code: 0,
+      message: 'success',
+      data: {
+        published: publishedRes.total || 0,
+        favorites: favoritesRes.total || 0,
+        groupbuy: groupbuyRes.total || 0,
+      },
+    })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message }, 500)
+  }
+})
+
 // 更新用户信息
 auth.put('/profile', authMiddleware, async (c) => {
   const user = c.get('user') as JwtPayload

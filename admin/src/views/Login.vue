@@ -30,7 +30,7 @@ async function login() {
   error.value = ''
   if (!form.username || !form.password) { error.value = '请填写账号和密码'; return }
   try {
-    const res: any = await api.post('/admin/login', form)
+    const res: any = await api.post('/api/auth/admin/login', form)
     localStorage.setItem('admin_token', res.data.token)
     router.push('/dashboard')
   } catch (e: any) {

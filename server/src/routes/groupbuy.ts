@@ -59,4 +59,36 @@ groupbuy.post('/:id/join', authMiddleware, async (c) => {
   }
 })
 
+// 获取我参与/发起的拼团列表
+groupbuy.get('/my', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user') as any
+    const { page = '1', pageSize = '20' } = c.req.query()
+    const p = Number(page)
+    const ps = Number(pageSize)
+    const skip = (p - 1) * ps
+
+    // 查询 participants 包含我的 openid 的拼团
+    const [listRes, countRes] = await Promise.all([
+      getCollection('groupbuys')
+        .where({ participants: user.openid })
+        .orderBy('createdAt', 'desc')
+        .skip(skip)
+        .limit(ps)
+        .get(),
+      getCollection('groupbuys')
+        .where({ participants: user.openid })
+        .count(),
+    ])
+
+    return c.json({
+      code: 0,
+      message: 'success',
+      data: { list: listRes.data || [], total: countRes.total || 0, page: p, pageSize: ps },
+    })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message }, 500)
+  }
+})
+
 export default groupbuy
