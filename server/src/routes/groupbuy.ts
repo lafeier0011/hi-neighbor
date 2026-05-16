@@ -187,9 +187,15 @@ groupbuy.get('/:id', async (c) => {
     const { id } = c.req.param()
 
     const res = await getCollection('groupbuys').doc(id).get()
-    const gb = res.data as any
+    // CloudBase .doc().get() 返回 res.data 可能是类数组对象，取第一个元素
+    let gb: any = res.data
+    if (Array.isArray(gb)) {
+      gb = gb[0]
+    } else if (gb && typeof gb === 'object' && gb[0] !== undefined) {
+      gb = gb[0]
+    }
 
-    if (!gb) return c.json({ code: 404, message: '拼团不存在' }, 404)
+    if (!gb || !gb._id) return c.json({ code: 404, message: '拼团不存在' }, 404)
 
     // 实时修正过期状态
     if (gb.status === 'pending' && gb.deadline && new Date(gb.deadline) <= new Date()) {
@@ -214,7 +220,7 @@ groupbuy.get('/:id', async (c) => {
     return c.json({
       code: 0,
       message: 'success',
-      data: { ...gb, isJoined },
+      data: { _id: gb._id, title: gb.title, description: gb.description, originalPrice: gb.originalPrice, groupPrice: gb.groupPrice, targetCount: gb.targetCount, deadline: gb.deadline, images: gb.images, category: gb.category, contactWechat: gb.contactWechat, contactPhone: gb.contactPhone, organizerId: gb.organizerId, organizerInfo: gb.organizerInfo, currentCount: gb.currentCount, participants: gb.participants, status: gb.status, createdAt: gb.createdAt, updatedAt: gb.updatedAt, isJoined },
     })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)
@@ -228,9 +234,10 @@ groupbuy.post('/:id/join', authMiddleware, async (c) => {
     const { id } = c.req.param()
 
     const res = await getCollection('groupbuys').doc(id).get()
-    const gb = res.data as any
+    let gb: any = res.data
+    if (Array.isArray(gb)) { gb = gb[0] } else if (gb && typeof gb === 'object' && gb[0] !== undefined) { gb = gb[0] }
 
-    if (!gb) return c.json({ code: 404, message: '拼团不存在' }, 404)
+    if (!gb || !gb._id) return c.json({ code: 404, message: '拼团不存在' }, 404)
 
     // 实时检查 deadline
     if (gb.status === 'pending' && gb.deadline && new Date(gb.deadline) <= new Date()) {
@@ -265,9 +272,10 @@ groupbuy.post('/:id/leave', authMiddleware, async (c) => {
     const { id } = c.req.param()
 
     const res = await getCollection('groupbuys').doc(id).get()
-    const gb = res.data as any
+    let gb: any = res.data
+    if (Array.isArray(gb)) { gb = gb[0] } else if (gb && typeof gb === 'object' && gb[0] !== undefined) { gb = gb[0] }
 
-    if (!gb) return c.json({ code: 404, message: '拼团不存在' }, 404)
+    if (!gb || !gb._id) return c.json({ code: 404, message: '拼团不存在' }, 404)
     if (gb.status !== 'pending') return c.json({ code: 400, message: '拼团已结束，无法退出' }, 400)
     if (!(gb.participants || []).includes(user.openid)) return c.json({ code: 400, message: '您未参团' }, 400)
 
