@@ -28,7 +28,7 @@ favorites.post('/', authMiddleware, async (c) => {
       
       // 减少收藏数
       const goodRes = await getCollection('goods').doc(goodsId).get()
-      const good = goodRes.data as any
+      const good = goodRes.data ? (Array.isArray(goodRes.data) ? goodRes.data[0] : (goodRes.data[0] !== undefined ? goodRes.data[0] : goodRes.data)) : null
       if (good) {
         await getCollection('goods').doc(goodsId).update({
           favCount: Math.max(0, (good.favCount || 0) - 1),
@@ -45,11 +45,11 @@ favorites.post('/', authMiddleware, async (c) => {
       })
 
       // 增加收藏数
-      const goodRes = await getCollection('goods').doc(goodsId).get()
-      const good = goodRes.data as any
-      if (good) {
+      const goodRes2 = await getCollection('goods').doc(goodsId).get()
+      const good2 = goodRes2.data ? (Array.isArray(goodRes2.data) ? goodRes2.data[0] : (goodRes2.data[0] !== undefined ? goodRes2.data[0] : goodRes2.data)) : null
+      if (good2) {
         await getCollection('goods').doc(goodsId).update({
-          favCount: (good.favCount || 0) + 1,
+          favCount: (good2.favCount || 0) + 1,
         })
       }
 

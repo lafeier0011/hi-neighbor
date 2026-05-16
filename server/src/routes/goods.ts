@@ -57,17 +57,23 @@ goods.get('/', async (c) => {
   }
 })
 
+// CloudBase .doc().get() 返回类数组对象，统一提取
+function extractDoc(data: any): any {
+  if (Array.isArray(data)) return data[0]
+  if (data && typeof data === 'object' && data[0] !== undefined) return data[0]
+  return data
+}
+
 // 获取商品详情（公开）
 goods.get('/:id', async (c) => {
   try {
     const { id } = c.req.param()
     const res = await getCollection('goods').doc(id).get()
+    const good = extractDoc(res.data)
 
-    if (!res.data) {
+    if (!good || !good._id) {
       return c.json({ code: 404, message: '商品不存在' }, 404)
     }
-
-    const good = res.data as any
 
     // 已删除的商品不可见（除非是发布者）
     if (good.status === 'deleted') {
@@ -184,9 +190,9 @@ goods.put('/:id/sell', authMiddleware, async (c) => {
     const { id } = c.req.param()
 
     const res = await getCollection('goods').doc(id).get()
-    const good = res.data as any
+    const good = extractDoc(res.data)
 
-    if (!good || good.status === 'deleted') {
+    if (!good || !good._id) {
       return c.json({ code: 404, message: '商品不存在' }, 404)
     }
     if (good.publisherId !== user.openid) {
@@ -223,9 +229,9 @@ goods.delete('/:id', authMiddleware, async (c) => {
     const { id } = c.req.param()
 
     const res = await getCollection('goods').doc(id).get()
-    const good = res.data as any
+    const good = extractDoc(res.data)
 
-    if (!good) {
+    if (!good || !good._id) {
       return c.json({ code: 404, message: '商品不存在' }, 404)
     }
     if (good.publisherId !== user.openid) {

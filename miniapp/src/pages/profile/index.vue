@@ -5,10 +5,17 @@
       <view class="profile-top">
         <view class="avatar">
           <image v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar-img" mode="aspectFill" />
+          <view v-else class="avatar-default">
+            <text class="avatar-text">{{ (userInfo.nickname || '微').charAt(0) }}</text>
+          </view>
         </view>
         <view class="info">
           <text class="name">{{ userInfo.nickname || '微信用户' }}</text>
-          <text class="loc">{{ userInfo.community || '' }}</text>
+          <text class="loc" v-if="userInfo.community">{{ userInfo.community }}</text>
+        </view>
+        <!-- 已登录时显示编辑按钮 -->
+        <view v-if="isLoggedIn" class="edit-btn" @tap="goSetting">
+          <text class="edit-text">编辑</text>
         </view>
       </view>
     </view>
@@ -79,12 +86,20 @@
           <text class="menu-arrow">›</text>
         </view>
       </view>
+
+      <!-- 退出登录 -->
+      <view class="menu-group" v-if="isLoggedIn">
+        <view class="menu-item logout-item" @tap="handleLogout">
+          <text class="logout-text">退出登录</text>
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '../../store/user'
 import { authApi } from '../../api'
 
@@ -96,6 +111,22 @@ const userInfo = computed(() => userStore.userInfo || {})
 
 async function handleLogin() {
   await userStore.login()
+  // 登录成功后刷新数据
+  fetchStats()
+}
+
+function handleLogout() {
+  uni.showModal({
+    title: '提示',
+    content: '确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        userStore.logout()
+        myStats.value = { published: 0, favorites: 0, groupbuy: 0 }
+        uni.showToast({ title: '已退出', icon: 'success' })
+      }
+    },
+  })
 }
 
 // 跳转到各子页面
@@ -143,6 +174,11 @@ async function fetchStats() {
 onMounted(() => {
   fetchStats()
 })
+
+// 每次显示页面时刷新（从设置页返回后可能信息变了）
+onShow(() => {
+  fetchStats()
+})
 </script>
 
 <style scoped lang="scss">
@@ -154,11 +190,17 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
 .profile-header { background: $text; padding: 32rpx 32rpx 64rpx; }
 .profile-top { display: flex; align-items: center; gap: 24rpx; }
 .avatar { width: 112rpx; height: 112rpx; border-radius: 50%; background: $surface;
-  border: 4rpx solid rgba(255,255,255,0.15); overflow: hidden; }
+  border: 4rpx solid rgba(255,255,255,0.15); overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; }
 .avatar-img { width: 100%; height: 100%; }
-.info { display: flex; flex-direction: column; }
+.avatar-default { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  background: $accent; }
+.avatar-text { font-size: 40rpx; color: #fff; font-weight: 600; }
+.info { flex: 1; display: flex; flex-direction: column; }
 .name { color: #fff; font-size: 36rpx; font-weight: 600; }
 .loc { color: rgba(255,255,255,0.5); font-size: 24rpx; margin-top: 4rpx; }
+.edit-btn { padding: 8rpx 24rpx; border: 2rpx solid rgba(255,255,255,0.3); border-radius: 32rpx; }
+.edit-text { color: rgba(255,255,255,0.7); font-size: 24rpx; }
 
 .stats-bar { display: flex; margin: -32rpx 32rpx 0; background: $bg; border-radius: $radius;
   border: 2rpx solid $border; }
@@ -185,4 +227,7 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
   &.light { background: $text-tri; } }
 .menu-text { flex: 1; font-size: 28rpx; color: $text; }
 .menu-arrow { color: $text-tri; font-size: 28rpx; }
+
+.logout-item { justify-content: center; }
+.logout-text { font-size: 28rpx; color: #c0392b; font-weight: 500; }
 </style>
