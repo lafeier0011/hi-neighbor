@@ -110,12 +110,12 @@ onMounted(() => {
 $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
 
-.page { min-height: 100vh; background: $surface; overflow-x: hidden; }
+.page { min-height: 100vh; background: $surface; overflow-x: hidden; max-width: 100vw; box-sizing: border-box; }
 
-.list-wrap { height: 100vh; padding: 20rpx 32rpx; }
+.list-wrap { height: 100vh; padding: 20rpx 32rpx; box-sizing: border-box; }
 .fav-list {}
 .fav-card { display: flex; align-items: center; gap: 20rpx; padding: 24rpx; background: $bg;
-  border-radius: $radius; border: 2rpx solid $border; margin-bottom: 16rpx; }
+  border-radius: $radius; border: 2rpx solid $border; margin-bottom: 16rpx; box-sizing: border-box; }
 .fav-img { width: 140rpx; height: 140rpx; border-radius: 12rpx; background: $surface; flex-shrink: 0; }
 .fav-info { flex: 1; overflow: hidden; }
 .fav-title { font-size: 28rpx; color: $text; font-weight: 500; display: block;

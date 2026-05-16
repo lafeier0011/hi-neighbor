@@ -2,9 +2,11 @@
   <view class="page">
     <!-- Nav -->
     <view class="nav-bar">
-      <text class="nav-back" @tap="goBack">←</text>
-      <text class="nav-title">拼团详情</text>
-      <text class="nav-action" />
+      <view class="nav-bar-inner">
+        <text class="nav-back" @tap="goBack">←</text>
+        <text class="nav-title">拼团详情</text>
+        <text class="nav-action" />
+      </view>
     </view>
 
     <scroll-view scroll-y class="content" v-if="detail._id">
@@ -287,8 +289,12 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
 $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
 
 .page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
-.nav-bar { height: 88rpx; display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32rpx; border-bottom: 2rpx solid $border; }
+.nav-bar {
+  padding-top: var(--status-bar-height, 44px);
+  border-bottom: 2rpx solid $border;
+}
+.nav-bar-inner { height: 88rpx; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32rpx; }
 .nav-back { font-size: 36rpx; color: $text; }
 .nav-title { font-size: 32rpx; font-weight: 600; }
 .nav-action { width: 60rpx; }

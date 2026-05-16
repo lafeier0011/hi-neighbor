@@ -2,22 +2,17 @@
   <view class="page">
     <!-- 社区切换 + 搜索 -->
     <view class="top-bar">
-      <picker :range="communities" @change="switchCommunity">
+      <picker v-if="!searchMode" :range="communities" @change="switchCommunity">
         <view class="community-picker">
           <text class="community-name">{{ currentCommunity }}</text>
           <text class="community-arrow">▼</text>
         </view>
       </picker>
-      <view class="search-bar" @tap="toggleSearch">
+      <!-- 搜索栏：点击原地展开输入框 -->
+      <view class="search-bar">
         <view class="search-icon" />
-        <text class="search-placeholder">{{ searchKeyword || '搜索好物...' }}</text>
-      </view>
-    </view>
-
-    <!-- 搜索模式 -->
-    <view v-if="searchMode" class="search-panel">
-      <view class="search-input-row">
         <input
+          v-if="searchMode"
           v-model="searchKeyword"
           class="search-input"
           placeholder="搜索好物..."
@@ -25,29 +20,31 @@
           confirm-type="search"
           @confirm="doSearch"
           @input="onSearchInput"
+          @blur="onBlur"
         />
-        <view class="search-cancel" @tap="cancelSearch">
+        <text v-else class="search-placeholder" @tap="toggleSearch">搜索好物...</text>
+        <view v-if="searchMode" class="search-cancel" @tap="cancelSearch">
           <text>取消</text>
         </view>
       </view>
+    </view>
 
-      <!-- 搜索历史 -->
-      <view v-if="searchHistory.length > 0 && !hasSearched" class="history-section">
-        <view class="history-header">
-          <text class="history-title">搜索历史</text>
-          <view class="history-clear" @tap="clearHistory">
-            <text>清空</text>
-          </view>
+    <!-- 搜索历史 -->
+    <view v-if="searchMode && searchHistory.length > 0 && !hasSearched" class="history-section">
+      <view class="history-header">
+        <text class="history-title">搜索历史</text>
+        <view class="history-clear" @tap="clearHistory">
+          <text>清空</text>
         </view>
-        <view class="history-tags">
-          <view
-            v-for="(tag, idx) in searchHistory"
-            :key="idx"
-            class="history-tag"
-            @tap="searchByHistory(tag)"
-          >
-            <text>{{ tag }}</text>
-          </view>
+      </view>
+      <view class="history-tags">
+        <view
+          v-for="(tag, idx) in searchHistory"
+          :key="idx"
+          class="history-tag"
+          @tap="searchByHistory(tag)"
+        >
+          <text>{{ tag }}</text>
         </view>
       </view>
     </view>
@@ -93,7 +90,8 @@
           </view>
           <view class="product-info">
             <!-- 搜索高亮标题 -->
-            <text class="product-name" v-html="highlightTitle(item.title)" />
+            <rich-text v-if="searchKeyword.trim()" class="product-name" :nodes="highlightTitle(item.title)" />
+            <text v-else class="product-name">{{ item.title }}</text>
             <view class="product-meta">
               <text class="product-price">¥{{ item.price }}</text>
               <text class="product-condition">{{ item.condition }}</text>
@@ -179,8 +177,27 @@ function cancelSearch() {
   fetchGoods(true)
 }
 
+function onBlur() {
+  // 输入框失焦时，如果有关键词则保留搜索状态，仅关闭输入模式
+  if (searchKeyword.value.trim()) {
+    searchMode.value = false
+  } else {
+    searchMode.value = false
+  }
+}
+
+let searchDebounce: any = null
+
 function onSearchInput() {
-  // 实时输入，不做处理
+  // 实时搜索防抖
+  if (searchDebounce) clearTimeout(searchDebounce)
+  searchDebounce = setTimeout(() => {
+    const kw = searchKeyword.value.trim()
+    if (kw.length >= 1) {
+      hasSearched.value = true
+      fetchGoods(true)
+    }
+  }, 500)
 }
 
 function doSearch() {
@@ -228,9 +245,14 @@ async function fetchGoods(reset = false) {
     if (currentCommunity.value !== '全部社区') {
       params.community = currentCommunity.value
     }
-    // 搜索关键词
+    // 搜索关键词（同时搜索商品名称和类别）
     if (searchKeyword.value.trim()) {
       params.keyword = searchKeyword.value.trim()
+      // 匹配分类名称时，取消分类筛选
+      const matchedCat = categories.value.find(c => c.name === searchKeyword.value.trim())
+      if (matchedCat && matchedCat.name !== '全部') {
+        params.category = matchedCat.name
+      }
     }
     const data = await goodsApi.getList(params)
     const list = data.list || []
@@ -349,38 +371,31 @@ $radius: 16rpx;
   height: 28rpx;
   border: 4rpx solid $text-tertiary;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .search-placeholder {
   font-size: 28rpx;
   color: $text-tertiary;
+  flex: 1;
 }
 
-/* 搜索面板 */
-.search-panel {
-  padding: 0 24rpx 20rpx;
-}
-.search-input-row {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-}
 .search-input {
   flex: 1;
-  height: 72rpx;
-  background: $surface;
-  border-radius: $radius;
-  padding: 0 24rpx;
   font-size: 28rpx;
   color: $text;
+  height: 40rpx;
+  line-height: 40rpx;
 }
+
 .search-cancel {
-  padding: 16rpx;
+  flex-shrink: 0;
+  padding: 4rpx 0;
   text { font-size: 28rpx; color: $accent; }
 }
 
 /* 搜索历史 */
-.history-section { margin-top: 24rpx; }
+.history-section { margin: 0 24rpx; }
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
 .history-title { font-size: 26rpx; color: $text-secondary; font-weight: 600; }
 .history-clear { padding: 8rpx 16rpx; text { font-size: 24rpx; color: $text-tertiary; } }
@@ -524,14 +539,13 @@ $radius: 16rpx;
   font-size: 26rpx;
   color: $text;
   font-weight: 500;
-  lines: 2;
-  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 12rpx;
   min-height: 72rpx;
+  line-height: 1.4;
 }
 
 .product-meta {

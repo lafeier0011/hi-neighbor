@@ -63,4 +63,9 @@ console.log(`   Env: ${process.env.CLOUDBASE_ENV_ID || 'not set'}`)
 // 启动时检查一次过期拼团
 checkExpiredGroupbuys().catch(e => console.error('Startup groupbuy check failed:', e))
 
+// 每分钟定时检查过期拼团
+setInterval(() => {
+  checkExpiredGroupbuys().catch(e => console.error('Cron groupbuy check failed:', e))
+}, 60 * 1000)
+
 export default app

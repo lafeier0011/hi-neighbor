@@ -147,7 +147,7 @@ onMounted(() => {
 $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
 
-.page { min-height: 100vh; background: $surface; display: flex; flex-direction: column; overflow-x: hidden; }
+.page { min-height: 100vh; background: $surface; display: flex; flex-direction: column; overflow-x: hidden; max-width: 100vw; box-sizing: border-box; }
 
 .tabs { display: flex; background: $bg; border-bottom: 2rpx solid $border; }
 .tab-item { flex: 1; text-align: center; padding: 24rpx 0; position: relative;
@@ -157,9 +157,9 @@ $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $radius: 16rpx;
     width: 48rpx; height: 6rpx; background: $accent; border-radius: 3rpx; }
 }
 
-.list-wrap { flex: 1; height: 0; padding: 20rpx 32rpx; }
+.list-wrap { flex: 1; height: 0; padding: 20rpx 32rpx; box-sizing: border-box; }
 .gb-list {}
-.gb-card { padding: 24rpx; background: $bg; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 16rpx; }
+.gb-card { padding: 24rpx; background: $bg; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 16rpx; box-sizing: border-box; }
 .gb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
 .gb-title { font-size: 30rpx; font-weight: 600; color: $text; flex: 1;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

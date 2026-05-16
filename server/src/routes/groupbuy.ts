@@ -20,9 +20,18 @@ groupbuy.get('/', async (c) => {
       getCollection('groupbuys').where(query).count(),
     ])
 
+    // 实时修正过期状态
+    const now = new Date()
+    const list = (listRes.data || []).map((item: any) => {
+      if (item.status === 'pending' && item.deadline && new Date(item.deadline) <= now) {
+        item.status = 'expired'
+      }
+      return item
+    })
+
     return c.json({
       code: 0, message: 'success',
-      data: { list: listRes.data || [], total: countRes.total || 0, page: p, pageSize: ps },
+      data: { list, total: countRes.total || 0, page: p, pageSize: ps },
     })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)
@@ -113,10 +122,19 @@ groupbuy.get('/my', authMiddleware, async (c) => {
         .count(),
     ])
 
+    // 实时修正过期状态
+    const now = new Date()
+    const list = (listRes.data || []).map((item: any) => {
+      if (item.status === 'pending' && item.deadline && new Date(item.deadline) <= now) {
+        item.status = 'expired'
+      }
+      return item
+    })
+
     return c.json({
       code: 0,
       message: 'success',
-      data: { list: listRes.data || [], total: countRes.total || 0, page: p, pageSize: ps },
+      data: { list, total: countRes.total || 0, page: p, pageSize: ps },
     })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)
@@ -144,10 +162,19 @@ groupbuy.get('/my/organized', authMiddleware, async (c) => {
         .count(),
     ])
 
+    // 实时修正过期状态
+    const now2 = new Date()
+    const organizedList = (listRes.data || []).map((item: any) => {
+      if (item.status === 'pending' && item.deadline && new Date(item.deadline) <= now2) {
+        item.status = 'expired'
+      }
+      return item
+    })
+
     return c.json({
       code: 0,
       message: 'success',
-      data: { list: listRes.data || [], total: countRes.total || 0, page: p, pageSize: ps },
+      data: { list: organizedList, total: countRes.total || 0, page: p, pageSize: ps },
     })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)
@@ -163,6 +190,12 @@ groupbuy.get('/:id', async (c) => {
     const gb = res.data as any
 
     if (!gb) return c.json({ code: 404, message: '拼团不存在' }, 404)
+
+    // 实时修正过期状态
+    if (gb.status === 'pending' && gb.deadline && new Date(gb.deadline) <= new Date()) {
+      await getCollection('groupbuys').doc(id).update({ status: 'expired', updatedAt: new Date() })
+      gb.status = 'expired'
+    }
 
     // 检查当前用户是否已参团
     let isJoined = false
@@ -198,6 +231,13 @@ groupbuy.post('/:id/join', authMiddleware, async (c) => {
     const gb = res.data as any
 
     if (!gb) return c.json({ code: 404, message: '拼团不存在' }, 404)
+
+    // 实时检查 deadline
+    if (gb.status === 'pending' && gb.deadline && new Date(gb.deadline) <= new Date()) {
+      await getCollection('groupbuys').doc(id).update({ status: 'expired', updatedAt: new Date() })
+      return c.json({ code: 400, message: '拼团已结束' }, 400)
+    }
+
     if (gb.status !== 'pending') return c.json({ code: 400, message: '拼团已结束' }, 400)
     if (gb.participants?.includes(user.openid)) return c.json({ code: 400, message: '已参团' }, 400)
 
