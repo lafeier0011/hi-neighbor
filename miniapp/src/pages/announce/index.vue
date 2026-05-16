@@ -3,7 +3,10 @@
     <scroll-view scroll-y class="list">
       <view v-for="item in announces" :key="item._id" class="ann-card" @tap="showDetail(item)">
         <view class="card-top">
-          <text class="ann-tag" :class="item.type">{{ typeText(item.type) }}</text>
+          <view class="top-row">
+            <text class="ann-tag" :class="item.type">{{ typeText(item.type) }}</text>
+            <text v-if="item.pinned" class="pin-tag">置顶</text>
+          </view>
           <text class="ann-date">{{ formatDate(item.createdAt) }}</text>
         </view>
         <text class="ann-title">{{ item.title }}</text>
@@ -79,6 +82,8 @@ $radius: 16rpx;
 
 .ann-card { padding: 28rpx; border-radius: $radius; border: 2rpx solid $border; margin-bottom: 20rpx; box-sizing: border-box; }
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
+.top-row { display: flex; align-items: center; gap: 8rpx; }
+.pin-tag { font-size: 20rpx; padding: 4rpx 14rpx; border-radius: 6rpx; font-weight: 600; background: #fff3cd; color: #856404; }
 .ann-tag { font-size: 20rpx; padding: 4rpx 14rpx; border-radius: 6rpx; font-weight: 600;
   &.urgent { background: #fde8e8; color: #c0392b; }
   &.event { background: $accent-light; color: $accent; }

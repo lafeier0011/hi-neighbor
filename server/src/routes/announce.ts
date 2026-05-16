@@ -7,6 +7,7 @@ const announce = new Hono()
 announce.get('/', async (c) => {
   try {
     const res = await getCollection('announcements')
+      .orderBy('pinned', 'desc')
       .orderBy('createdAt', 'desc')
       .limit(50)
       .get()
