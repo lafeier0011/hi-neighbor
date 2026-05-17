@@ -16,6 +16,11 @@ export const goodsApi = {
     return http.post('/api/goods', data)
   },
 
+  /** 更新商品 */
+  updateGoods(id: string, data: any) {
+    return http.put(`/api/goods/${id}`, data)
+  },
+
   /** 标记已卖出 */
   markSold(id: string) {
     return http.put(`/api/goods/${id}/sell`)

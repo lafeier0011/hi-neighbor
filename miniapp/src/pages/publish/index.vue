@@ -2,12 +2,12 @@
   <view class="page">
     <!-- Nav -->
     <view class="nav-bar">
-      <text class="nav-title">发布</text>
+      <text class="nav-title">{{ editId ? '编辑商品' : '发布' }}</text>
     </view>
 
     <scroll-view scroll-y class="form-scroll">
-      <!-- 类型切换 -->
-      <view class="type-tabs">
+      <!-- 类型切换（编辑模式隐藏） -->
+      <view v-if="!editId" class="type-tabs">
         <view class="type-tab" :class="{ active: type === 'goods' }" @tap="switchType('goods')">二手好物</view>
         <view class="type-tab" :class="{ active: type === 'group' }" @tap="switchType('group')">拼团服务</view>
       </view>
@@ -29,11 +29,11 @@
 
       <!-- 名称 -->
       <view class="form-group">
-        <text class="form-label">名称 <text class="required">*</text></text>
+        <text class="form-label">{{ type === 'group' ? '拼团标题' : '商品名称' }} <text class="required">*</text></text>
         <input
           class="form-input"
           v-model="form.title"
-          placeholder="描述一下你的宝贝"
+          :placeholder="type === 'group' ? '描述一下你要拼的商品' : '描述一下你的宝贝'"
           maxlength="30"
         />
         <view class="form-hint">
@@ -73,8 +73,8 @@
         </view>
       </view>
 
-      <!-- 分类 -->
-      <view class="form-group">
+      <!-- 分类（仅拼团显示） -->
+      <view v-if="type === 'group'" class="form-group">
         <text class="form-label">分类</text>
         <view class="option-list">
           <view
@@ -208,7 +208,7 @@
 
     <!-- 提交 -->
     <view class="submit-btn" :class="{ disabled: submitting }" @tap="submit">
-      <text>{{ submitting ? '发布中...' : (type === 'group' ? '发起拼团' : '发布') }}</text>
+      <text>{{ submitting ? '提交中...' : (editId ? '保存修改' : (type === 'group' ? '发起拼团' : '发布')) }}</text>
     </view>
 
     <!-- 地址选择弹窗 -->
@@ -233,6 +233,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '../../store/user'
 import { goodsApi, groupbuyApi, locationApi } from '../../api'
 import { http } from '../../utils/request'
@@ -243,6 +244,7 @@ const images = ref<string[]>([])
 const showLocationPicker = ref(false)
 const locations = ref<any[]>([])
 const submitting = ref(false)
+const editId = ref('')
 
 const conditions = ['全新', '9成新', '7成新', '5成新', '一般']
 const categories = ['母婴', '玩具', '书籍', '家居', '服饰', '数码', '其他']
@@ -413,6 +415,39 @@ async function submit() {
   }
   if (!validate()) return
 
+  // 编辑模式：更新商品
+  if (editId.value) {
+    submitting.value = true
+    uni.showLoading({ title: '保存中...' })
+    try {
+      let uploadedImages: string[] = []
+      if (images.value.length > 0) {
+        uni.showLoading({ title: '上传图片中...' })
+        uploadedImages = await uploadImages()
+      }
+      await goodsApi.updateGoods(editId.value, {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        condition: form.condition,
+        category: form.category,
+        price: Number(form.price),
+        originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+        location: form.location,
+        contactWechat: form.contactWechat,
+        contactPhone: form.contactPhone,
+        images: uploadedImages,
+      })
+      uni.hideLoading()
+      uni.showToast({ title: '保存成功', icon: 'success' })
+      setTimeout(() => uni.navigateBack(), 1500)
+    } catch {
+      uni.hideLoading()
+      submitting.value = false
+    }
+    return
+  }
+
+  // 新发布模式
   submitting.value = true
   uni.showLoading({ title: '发布中...' })
 
@@ -468,6 +503,27 @@ onMounted(async () => {
     const data = await locationApi.getList()
     locations.value = data.locations || []
   } catch {}
+})
+
+// 编辑模式加载
+onLoad(async (options: any) => {
+  if (options?.editId) {
+    editId.value = options.editId
+    try {
+      const res = await goodsApi.getDetail(options.editId)
+      const good = Array.isArray(res) ? res[0] : res
+      form.title = good.title || ''
+      form.description = good.description || ''
+      form.condition = good.condition || '9成新'
+      form.category = good.category || '其他'
+      form.price = String(good.price || '')
+      form.originalPrice = good.originalPrice ? String(good.originalPrice) : ''
+      form.location = good.location || ''
+      form.contactWechat = good.contactWechat || ''
+      form.contactPhone = good.contactPhone || ''
+      images.value = good.images || []
+    } catch {}
+  }
 })
 </script>
 

@@ -78,7 +78,8 @@
       <!-- 买家视角 -->
       <template v-if="!isOwner">
         <view class="fav-btn" :class="{ active: favorited }" @tap="toggleFav">
-          <text class="fav-icon">{{ favorited ? '❤' : '☆' }}</text>
+          <svg v-if="favorited" class="fav-svg" viewBox="0 0 24 24" fill="#c2703e" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg v-else class="fav-svg" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </view>
         <view class="contact-action" @tap="copyContact">
           <text>联系卖家</text>
@@ -86,11 +87,20 @@
       </template>
       <!-- 卖家视角 -->
       <template v-else>
+        <view v-if="detail.status === 'on_sale'" class="off-shelf-btn" @tap="toggleShelf(false)">
+          <text>下架</text>
+        </view>
+        <view v-if="detail.status === 'off_shelf'" class="on-shelf-btn" @tap="toggleShelf(true)">
+          <text>重新上架</text>
+        </view>
+        <view v-if="detail.status === 'off_shelf'" class="edit-btn-bar" @tap="goEdit">
+          <text>编辑</text>
+        </view>
         <view v-if="detail.status === 'on_sale'" class="sell-btn" @tap="markSold">
-          <text>标记已卖出</text>
+          <text>已卖出</text>
         </view>
         <view class="delete-btn" @tap="deleteGoods">
-          <text>删除商品</text>
+          <text>删除</text>
         </view>
       </template>
     </view>
@@ -116,6 +126,19 @@ async function fetchDetail() {
   try {
     const res = await goodsApi.getDetail(goodsId.value)
     detail.value = Array.isArray(res) ? res[0] : res
+    // 检查是否已收藏
+    if (userStore.isLoggedIn()) {
+      checkFavorite()
+    }
+  } catch {}
+}
+
+async function checkFavorite() {
+  try {
+    // 查询收藏列表中是否有该商品
+    const data = await favoritesApi.getList({ page: 1, pageSize: 100 })
+    const ids = (data.list || []).map((item: any) => item._id)
+    favorited.value = ids.includes(goodsId.value)
   } catch {}
 }
 
@@ -157,6 +180,10 @@ function copyContact() {
 }
 
 async function toggleFav() {
+  if (!userStore.isLoggedIn()) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    return
+  }
   try {
     const data = await favoritesApi.toggle(goodsId.value)
     favorited.value = data.favorited
@@ -166,7 +193,7 @@ async function toggleFav() {
 async function markSold() {
   uni.showModal({
     title: '确认',
-    content: '确定标记为已卖出？标记后1天自动下架',
+    content: '确定标记为已卖出？',
     success: async (res) => {
       if (res.confirm) {
         await goodsApi.markSold(goodsId.value)
@@ -175,6 +202,38 @@ async function markSold() {
       }
     },
   })
+}
+
+async function toggleShelf(onShelf: boolean) {
+  if (onShelf) {
+    uni.showModal({
+      title: '确认',
+      content: '确定重新上架？',
+      success: async (res) => {
+        if (res.confirm) {
+          await goodsApi.updateGoods(goodsId.value, { status: 'on_sale' })
+          uni.showToast({ title: '已上架', icon: 'success' })
+          fetchDetail()
+        }
+      },
+    })
+  } else {
+    uni.showModal({
+      title: '确认',
+      content: '下架后商品不再展示在首页，可随时重新上架',
+      success: async (res) => {
+        if (res.confirm) {
+          await goodsApi.updateGoods(goodsId.value, { status: 'off_shelf' })
+          uni.showToast({ title: '已下架', icon: 'success' })
+          fetchDetail()
+        }
+      },
+    })
+  }
+}
+
+function goEdit() {
+  uni.navigateTo({ url: `/pages/publish/index?editId=${goodsId.value}` })
 }
 
 async function deleteGoods() {
@@ -253,16 +312,24 @@ $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
   display: flex; align-items: center; justify-content: center;
   &.active { border-color: $accent; background: $accent-light; }
 }
-.fav-icon { font-size: 36rpx; color: $text-tri; }
-.fav-btn.active .fav-icon { color: $accent; }
+.fav-svg { width: 40rpx; height: 40rpx; }
 .contact-action { flex: 1; height: 88rpx; background: $accent; border-radius: $radius;
   display: flex; align-items: center; justify-content: center;
   text { color: #fff; font-size: 30rpx; font-weight: 600; } }
-.sell-btn { flex: 1; height: 88rpx; background: $success; border-radius: $radius;
+.sell-btn { height: 88rpx; background: $success; border-radius: $radius;
   display: flex; align-items: center; justify-content: center;
   text { color: #fff; font-size: 30rpx; font-weight: 600; } }
-.delete-btn { flex: 1; height: 88rpx; background: $surface; border-radius: $radius;
+.off-shelf-btn { height: 88rpx; background: $surface; border-radius: $radius; border: 2rpx solid $border;
+  display: flex; align-items: center; justify-content: center;
+  text { color: $text-sec; font-size: 28rpx; font-weight: 600; } }
+.on-shelf-btn { height: 88rpx; background: $accent; border-radius: $radius;
+  display: flex; align-items: center; justify-content: center;
+  text { color: #fff; font-size: 28rpx; font-weight: 600; } }
+.edit-btn-bar { height: 88rpx; background: $bg; border-radius: $radius; border: 2rpx solid $accent;
+  display: flex; align-items: center; justify-content: center;
+  text { color: $accent; font-size: 28rpx; font-weight: 600; } }
+.delete-btn { height: 88rpx; background: $surface; border-radius: $radius;
   border: 2rpx solid $border;
   display: flex; align-items: center; justify-content: center;
-  text { color: $error; font-size: 30rpx; font-weight: 600; } }
+  text { color: $error; font-size: 28rpx; font-weight: 600; } }
 </style>
