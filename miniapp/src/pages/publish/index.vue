@@ -3,14 +3,13 @@
     <!-- Nav -->
     <view class="nav-bar">
       <text class="nav-title">发布</text>
-      <text class="nav-action">草稿箱</text>
     </view>
 
     <scroll-view scroll-y class="form-scroll">
-      <!-- 类型 -->
+      <!-- 类型切换 -->
       <view class="type-tabs">
-        <view class="type-tab" :class="{ active: type === 'goods' }" @tap="type = 'goods'">二手好物</view>
-        <view class="type-tab" :class="{ active: type === 'group' }" @tap="type = 'group'">拼团服务</view>
+        <view class="type-tab" :class="{ active: type === 'goods' }" @tap="switchType('goods')">二手好物</view>
+        <view class="type-tab" :class="{ active: type === 'group' }" @tap="switchType('group')">拼团服务</view>
       </view>
 
       <!-- 图片 -->
@@ -19,6 +18,7 @@
         <view class="photo-upload">
           <view v-for="(img, i) in images" :key="i" class="photo-slot filled">
             <image :src="img" class="photo-img" mode="aspectFill" />
+            <view class="photo-del" @tap="removeImage(i)">×</view>
           </view>
           <view v-if="images.length < 9" class="photo-slot" @tap="chooseImage">
             <text class="plus">+</text>
@@ -35,7 +35,6 @@
           v-model="form.title"
           placeholder="描述一下你的宝贝"
           maxlength="30"
-          @input="onTitleInput"
         />
         <view class="form-hint">
           <text class="error-msg" v-if="errors.title">{{ errors.title }}</text>
@@ -58,8 +57,8 @@
         </view>
       </view>
 
-      <!-- 成色 -->
-      <view class="form-group">
+      <!-- 成色（仅二手商品） -->
+      <view v-if="type === 'goods'" class="form-group">
         <text class="form-label">成色 <text class="required">*</text></text>
         <view class="option-list">
           <view
@@ -90,8 +89,8 @@
         </view>
       </view>
 
-      <!-- 价格 -->
-      <view class="price-row">
+      <!-- 价格：二手商品 -->
+      <view v-if="type === 'goods'" class="price-row">
         <view class="form-group half">
           <text class="form-label">售价 <text class="required">*</text></text>
           <view class="price-input">
@@ -108,8 +107,56 @@
         </view>
       </view>
 
-      <!-- 交易地点 -->
-      <view class="form-group">
+      <!-- 价格：拼团 -->
+      <view v-if="type === 'group'" class="price-row">
+        <view class="form-group half">
+          <text class="form-label">拼团价 <text class="required">*</text></text>
+          <view class="price-input">
+            <text class="price-prefix">¥</text>
+            <input type="digit" v-model="form.price" placeholder="0" />
+          </view>
+        </view>
+        <view class="form-group half">
+          <text class="form-label">原价</text>
+          <view class="price-input">
+            <text class="price-prefix">¥</text>
+            <input type="digit" v-model="form.originalPrice" placeholder="选填" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 目标人数（仅拼团） -->
+      <view v-if="type === 'group'" class="form-group">
+        <text class="form-label">目标人数 <text class="required">*</text></text>
+        <view class="number-picker">
+          <view class="picker-btn" @tap="changeTarget(-1)">−</view>
+          <text class="picker-value">{{ form.targetCount }}人</text>
+          <view class="picker-btn" @tap="changeTarget(1)">+</view>
+        </view>
+      </view>
+
+      <!-- 截止时间（仅拼团） -->
+      <view v-if="type === 'group'" class="form-group">
+        <text class="form-label">截止时间 <text class="required">*</text></text>
+        <view class="datetime-row">
+          <picker mode="date" :value="datePart" :start="todayStr" @change="onDateChange">
+            <view class="picker-field">
+              <text :class="['picker-text', { placeholder: !datePart }]">{{ datePart || '选择日期' }}</text>
+              <text class="arrow">›</text>
+            </view>
+          </picker>
+          <picker mode="time" :value="timePart" @change="onTimeChange">
+            <view class="picker-field">
+              <text :class="['picker-text', { placeholder: !timePart }]">{{ timePart || '选择时间' }}</text>
+              <text class="arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <text class="error-msg" v-if="errors.deadline">{{ errors.deadline }}</text>
+      </view>
+
+      <!-- 交易地点（仅二手商品） -->
+      <view v-if="type === 'goods'" class="form-group">
         <text class="form-label">交易地点</text>
         <view class="location-picker" @tap="showLocationPicker = true">
           <text :class="['location-text', { placeholder: !form.location }]">
@@ -117,7 +164,6 @@
           </text>
           <text class="arrow">›</text>
         </view>
-        <!-- 自定义输入 -->
         <input
           class="form-input"
           v-model="form.location"
@@ -132,7 +178,7 @@
       <!-- 联系方式 -->
       <view class="form-group">
         <text class="form-label">联系方式 <text class="required">*</text></text>
-        <text class="contact-hint">至少填写一项，方便买家联系你</text>
+        <text class="contact-hint">至少填写一项，方便{{ type === 'group' ? '邻居' : '买家' }}联系你</text>
 
         <view class="contact-row">
           <text class="contact-label">微信号</text>
@@ -140,10 +186,8 @@
             class="contact-input"
             v-model="form.contactWechat"
             placeholder="输入微信号"
-            :class="{ error: errors.wechat }"
           />
         </view>
-        <text class="field-hint" :class="{ error: errors.wechat }">{{ errors.wechat || '6-20位，字母开头' }}</text>
 
         <view class="contact-row">
           <text class="contact-label">手机号</text>
@@ -153,10 +197,8 @@
             placeholder="输入手机号"
             type="number"
             maxlength="11"
-            :class="{ error: errors.phone }"
           />
         </view>
-        <text class="field-hint" :class="{ error: errors.phone }">{{ errors.phone || '11位手机号' }}</text>
 
         <text class="error-msg" v-if="errors.contact">{{ errors.contact }}</text>
       </view>
@@ -165,7 +207,9 @@
     </scroll-view>
 
     <!-- 提交 -->
-    <view class="submit-btn" @tap="submit">发布</view>
+    <view class="submit-btn" :class="{ disabled: submitting }" @tap="submit">
+      <text>{{ submitting ? '发布中...' : (type === 'group' ? '发起拼团' : '发布') }}</text>
+    </view>
 
     <!-- 地址选择弹窗 -->
     <view class="picker-mask" v-if="showLocationPicker" @tap="showLocationPicker = false">
@@ -188,20 +232,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { goodsApi, locationApi } from '../../api'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useUserStore } from '../../store/user'
+import { goodsApi, groupbuyApi, locationApi } from '../../api'
 import { http } from '../../utils/request'
-import {
-  validateTitle, validatePrice, validateCondition,
-  validateWechat, validatePhone, validateContact, validateDesc,
-} from '../../utils/validate'
 
+const userStore = useUserStore()
 const type = ref('goods')
-const images = ref<string[]>([])       // 本地临时路径（预览用）
-const imageUrls = ref<string[]>([])     // 上传后的服务器 URL
+const images = ref<string[]>([])
 const showLocationPicker = ref(false)
 const locations = ref<any[]>([])
-const uploading = ref(false)
+const submitting = ref(false)
 
 const conditions = ['全新', '9成新', '7成新', '5成新', '一般']
 const categories = ['母婴', '玩具', '书籍', '家居', '服饰', '数码', '其他']
@@ -216,31 +257,103 @@ const form = reactive({
   location: '',
   contactWechat: '',
   contactPhone: '',
+  targetCount: 3,
+})
+
+// 拼团日期时间
+const datePart = ref('')
+const timePart = ref('')
+const todayStr = computed(() => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 })
 
 const errors = reactive<Record<string, string>>({})
 
-function onTitleInput() {
-  if (form.title.length > 30) form.title = form.title.slice(0, 30)
+function switchType(t: string) {
+  if (t === type.value) return
+  type.value = t
+  // 切换时重置表单
+  Object.keys(errors).forEach(k => delete errors[k])
 }
 
+function changeTarget(delta: number) {
+  const newVal = form.targetCount + delta
+  if (newVal >= 2 && newVal <= 100) {
+    form.targetCount = newVal
+  }
+}
+
+function onDateChange(e: any) { datePart.value = e.detail.value }
+function onTimeChange(e: any) { timePart.value = e.detail.value }
+
 async function chooseImage() {
+  // #ifdef H5
+  // H5 环境：使用原生 input[type=file]
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.multiple = true
+  input.onchange = () => {
+    const files = input.files
+    if (!files) return
+    const remaining = 9 - images.value.length
+    const toProcess = Array.from(files).slice(0, remaining)
+    for (const file of toProcess) {
+      const url = URL.createObjectURL(file)
+      images.value = [...images.value, url]
+    }
+  }
+  input.click()
+  // #endif
+  // #ifndef H5
   const [, res] = await uni.chooseImage({ count: 9 - images.value.length, sizeType: ['compressed'] })
   if (res?.tempFilePaths) {
     images.value = [...images.value, ...res.tempFilePaths]
   }
+  // #endif
+}
+
+function removeImage(index: number) {
+  images.value.splice(index, 1)
 }
 
 async function uploadImages(): Promise<string[]> {
   const urls: string[] = []
   for (const localPath of images.value) {
-    // 如果已经是 http 开头的 URL，说明已上传过
     if (localPath.startsWith('http')) {
       urls.push(localPath)
       continue
     }
-    const res = await http.uploadFile(localPath)
-    urls.push(res.url)
+
+    // #ifdef H5
+    // H5 环境：blob URL 需要先转成 File 再上传
+    const response = await fetch(localPath)
+    const blob = await response.blob()
+    const fileName = `image_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`
+    const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const token = uni.getStorageSync('token') || ''
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    })
+    const data = await res.json()
+    if (data.code === 0) {
+      urls.push(data.data.url)
+    } else {
+      throw new Error(data.message || '上传失败')
+    }
+    // #endif
+
+    // #ifndef H5
+    const res2 = await http.uploadFile(localPath)
+    urls.push(res2.url)
+    // #endif
   }
   return urls
 }
@@ -250,49 +363,60 @@ function selectLocation(name: string) {
   showLocationPicker.value = false
 }
 
-// goBack removed - use system back
-
 function validate(): boolean {
-  // 清空错误
   Object.keys(errors).forEach(k => delete errors[k])
 
-  let err: string | null
-
-  err = validateTitle(form.title)
-  if (err) { errors.title = err; return false }
-
-  err = validatePrice(form.price)
-  if (err) { errors.price = err; return false }
-
-  err = validateCondition(form.condition)
-  if (err) { errors.condition = err; return false }
-
-  err = validateDesc(form.description)
-  if (err) { errors.description = err; return false }
-
-  // 联系方式
-  if (form.contactWechat) {
-    err = validateWechat(form.contactWechat)
-    if (err) { errors.wechat = err; return false }
+  if (!form.title.trim()) {
+    errors.title = '请输入名称'
+    return false
   }
 
-  if (form.contactPhone) {
-    err = validatePhone(form.contactPhone)
-    if (err) { errors.phone = err; return false }
+  if (!form.price || Number(form.price) <= 0) {
+    errors.price = '请输入有效价格'
+    return false
   }
 
-  err = validateContact(form.contactWechat, form.contactPhone)
-  if (err) { errors.contact = err; return false }
+  if (type.value === 'goods' && !form.condition) {
+    errors.condition = '请选择成色'
+    return false
+  }
+
+  if (type.value === 'group') {
+    if (form.targetCount < 2) {
+      errors.targetCount = '目标人数至少2人'
+      return false
+    }
+    if (!datePart.value || !timePart.value) {
+      errors.deadline = '请选择截止时间'
+      return false
+    }
+    const deadline = new Date(`${datePart.value}T${timePart.value}:00`)
+    if (deadline.getTime() <= Date.now()) {
+      errors.deadline = '截止时间必须在未来'
+      return false
+    }
+  }
+
+  if (!form.contactWechat && !form.contactPhone) {
+    errors.contact = '请至少填写一项联系方式'
+    return false
+  }
 
   return true
 }
 
 async function submit() {
+  if (submitting.value) return
+  if (!userStore.isLoggedIn()) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    return
+  }
   if (!validate()) return
 
+  submitting.value = true
   uni.showLoading({ title: '发布中...' })
+
   try {
-    // 先上传图片
     let uploadedImages: string[] = []
     if (images.value.length > 0) {
       uni.showLoading({ title: '上传图片中...' })
@@ -300,23 +424,42 @@ async function submit() {
     }
 
     uni.showLoading({ title: '发布中...' })
-    await goodsApi.publish({
-      title: form.title,
-      description: form.description,
-      condition: form.condition,
-      category: form.category,
-      price: Number(form.price),
-      originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
-      location: form.location,
-      contactWechat: form.contactWechat,
-      contactPhone: form.contactPhone,
-      images: uploadedImages,
-    })
+
+    if (type.value === 'goods') {
+      await goodsApi.publish({
+        title: form.title.trim(),
+        description: form.description.trim(),
+        condition: form.condition,
+        category: form.category,
+        price: Number(form.price),
+        originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+        location: form.location,
+        contactWechat: form.contactWechat,
+        contactPhone: form.contactPhone,
+        images: uploadedImages,
+      })
+    } else {
+      const deadline = `${datePart.value}T${timePart.value}:00`
+      await groupbuyApi.create({
+        title: form.title.trim(),
+        description: form.description.trim(),
+        originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+        groupPrice: Number(form.price),
+        targetCount: form.targetCount,
+        deadline,
+        images: uploadedImages,
+        category: form.category,
+        contactWechat: form.contactWechat,
+        contactPhone: form.contactPhone,
+      })
+    }
+
     uni.hideLoading()
-    uni.showToast({ title: '发布成功', icon: 'success' })
+    uni.showToast({ title: type.value === 'group' ? '拼团发起成功' : '发布成功', icon: 'success' })
     setTimeout(() => uni.navigateBack(), 1500)
   } catch {
     uni.hideLoading()
+    submitting.value = false
   }
 }
 
@@ -342,12 +485,10 @@ $radius: 16rpx;
 
 .page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
 .nav-bar {
-  height: 88rpx; display: flex; align-items: center; justify-content: space-between;
+  height: 88rpx; display: flex; align-items: center; justify-content: center;
   padding: 0 32rpx; border-bottom: 2rpx solid $border;
 }
-.nav-back { font-size: 36rpx; color: $text; }
 .nav-title { font-size: 32rpx; font-weight: 600; }
-.nav-action { font-size: 26rpx; color: $text-tertiary; }
 
 .form-scroll { flex: 1; }
 
@@ -378,16 +519,21 @@ $radius: 16rpx;
 }
 .form-hint { display: flex; justify-content: space-between; margin-top: 8rpx; font-size: 22rpx; }
 .count { color: $text-tertiary; }
-.error-msg { color: $error; font-size: 22rpx; }
+.error-msg { color: $error; font-size: 22rpx; margin-top: 8rpx; display: block; }
 
 .photo-upload { display: flex; gap: 16rpx; flex-wrap: wrap; }
 .photo-slot {
   width: 144rpx; height: 144rpx; border: 2rpx solid $border; border-radius: $radius;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: $surface;
+  background: $surface; position: relative;
 }
 .photo-slot.filled { border: none; }
 .photo-img { width: 100%; height: 100%; }
+.photo-del {
+  position: absolute; top: -8rpx; right: -8rpx; width: 36rpx; height: 36rpx;
+  background: rgba(0,0,0,0.5); border-radius: 50%; color: #fff; font-size: 24rpx;
+  display: flex; align-items: center; justify-content: center;
+}
 .plus { font-size: 40rpx; color: $text-tertiary; font-weight: 300; }
 .label { font-size: 20rpx; color: $text-tertiary; margin-top: 4rpx; }
 
@@ -409,30 +555,46 @@ $radius: 16rpx;
 }
 .price-input input { flex: 1; height: 72rpx; padding: 0 28rpx; font-size: 28rpx; }
 
+.number-picker { display: flex; align-items: center; gap: 24rpx; }
+.picker-btn {
+  width: 72rpx; height: 72rpx; border: 2rpx solid $border; border-radius: $radius;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36rpx; color: $text; font-weight: 600; background: $surface;
+}
+.picker-value { font-size: 32rpx; font-weight: 600; color: $text; min-width: 80rpx; text-align: center; }
+
+.datetime-row { display: flex; gap: 16rpx; }
+.picker-field {
+  flex: 1; display: flex; align-items: center; justify-content: space-between;
+  padding: 24rpx 28rpx; border: 2rpx solid $border; border-radius: $radius; box-sizing: border-box;
+}
+.picker-text { font-size: 28rpx; color: $text; &.placeholder { color: $text-tertiary; } }
+.arrow { color: $text-tertiary; font-size: 28rpx; }
+
 .location-picker {
   display: flex; align-items: center; justify-content: space-between;
   padding: 24rpx 28rpx; border: 2rpx solid $border; border-radius: $radius;
   box-sizing: border-box;
 }
 .location-text { font-size: 28rpx; color: $text; &.placeholder { color: $text-tertiary; } }
-.arrow { color: $text-tertiary; font-size: 28rpx; }
 
 .divider { height: 2rpx; background: $border; margin: 8rpx 24rpx 32rpx; }
 
-.contact-row { display: flex; align-items: center; gap: 16rpx; margin-bottom: 8rpx; }
+.contact-row { display: flex; align-items: center; gap: 16rpx; margin-bottom: 12rpx; }
 .contact-label { width: 96rpx; font-size: 24rpx; color: $text-secondary; font-weight: 500; flex-shrink: 0; }
 .contact-input {
   flex: 1; height: 72rpx; padding: 0 24rpx; border: 2rpx solid $border; border-radius: $radius;
-  font-size: 28rpx; line-height: 72rpx; &.error { border-color: $error; }
+  font-size: 28rpx; line-height: 72rpx;
 }
 .contact-hint { font-size: 22rpx; color: $text-tertiary; display: block; margin-bottom: 12rpx; }
-.field-hint { font-size: 22rpx; color: $text-tertiary; margin-left: 112rpx; margin-bottom: 8rpx; display: block;
-  &.error { color: $error; }
-}
 
 .submit-btn {
-  margin: 32rpx; padding: 28rpx; background: $accent; color: #fff;
-  font-size: 30rpx; font-weight: 600; text-align: center; border-radius: $radius;
+  margin: 32rpx; padding: 28rpx; background: $accent; border-radius: $radius;
+  display: flex; align-items: center; justify-content: center;
+  text { color: #fff; font-size: 30rpx; font-weight: 600; }
+  &.disabled { background: $surface;
+    text { color: $text-tertiary; }
+  }
 }
 
 .picker-mask {
