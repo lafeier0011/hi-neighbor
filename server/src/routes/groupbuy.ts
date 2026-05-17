@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { getCollection } from '../utils/cloudbase'
+import { getCollection, getDb } from '../utils/cloudbase'
 import { authMiddleware } from '../middleware/auth'
 
 const groupbuy = new Hono()
@@ -220,8 +220,7 @@ groupbuy.get('/:id', async (c) => {
     // 查询参与者信息
     let participantInfos: any[] = []
     if (gb.participants && gb.participants.length > 0) {
-      const db = getCollection('users').db
-      const cmd = db.command
+      const cmd = getDb().command
       const userRes = await getCollection('users').where({ openid: cmd.in(gb.participants) }).get()
       participantInfos = (userRes.data || []).map((u: any) => ({
         openid: u.openid,
