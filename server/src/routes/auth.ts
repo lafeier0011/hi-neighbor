@@ -82,6 +82,84 @@ auth.post('/login', async (c) => {
   }
 })
 
+// H5 网页端账号密码登录
+auth.post('/h5-login', async (c) => {
+  try {
+    const { username, password } = await c.req.json()
+
+    if (!username || !password) {
+      return c.json({ code: 400, message: '请输入账号密码' }, 400)
+    }
+
+    // 查找 H5 用户（用 openid 存储格式 h5_username）
+    const openid = `h5_${username}`
+    const userRes = await getCollection('users').where({ openid }).limit(1).get()
+    let user: any
+
+    if (userRes.data && userRes.data.length > 0) {
+      user = userRes.data[0]
+      // 验证密码
+      if (user.password !== password) {
+        return c.json({ code: 401, message: '账号或密码错误' }, 401)
+      }
+    } else {
+      // 新用户自动注册
+      const newUser = {
+        openid,
+        password,
+        nickname: username,
+        avatar: '',
+        phone: '',
+        wechat: '',
+        community: '',
+        building: '',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      const addRes = await getCollection('users').add(newUser)
+      user = { _id: addRes.id, ...newUser }
+    }
+
+    // 检查用户是否被禁用
+    if (user.status === 'disabled') {
+      return c.json({ code: 403, message: '账号已被禁用' }, 403)
+    }
+
+    const token = generateToken({
+      openid: user.openid,
+      role: user.role || 'user',
+    })
+
+    await writeLog(c, {
+      operatorId: user.openid,
+      operatorName: user.nickname,
+      type: 'login',
+      content: 'H5网页登录',
+    })
+
+    return c.json({
+      code: 0,
+      message: 'success',
+      data: {
+        token,
+        userInfo: {
+          _id: user._id,
+          openid: user.openid,
+          nickname: user.nickname,
+          avatar: user.avatar,
+          community: user.community,
+          building: user.building,
+          role: user.role,
+        },
+      },
+    })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message }, 500)
+  }
+})
+
 // 管理员账号密码登录
 auth.post('/admin/login', async (c) => {
   try {

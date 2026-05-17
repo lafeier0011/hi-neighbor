@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { initCollections } from './utils/cloudbase'
 import { checkExpiredGroupbuys } from './utils/groupbuy-cron'
@@ -68,4 +69,6 @@ setInterval(() => {
   checkExpiredGroupbuys().catch(e => console.error('Cron groupbuy check failed:', e))
 }, 60 * 1000)
 
-export default app
+// 启动 HTTP 服务
+serve({ fetch: app.fetch, port })
+console.log(`   ✅ Server running at http://localhost:${port}`)

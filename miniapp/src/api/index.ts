@@ -33,6 +33,11 @@ export const authApi = {
     return http.post('/api/auth/login', { code }, false)
   },
 
+  /** H5 账号密码登录 */
+  h5Login(username: string, password: string) {
+    return http.post('/api/auth/h5-login', { username, password }, false)
+  },
+
   /** 获取用户信息 */
   getProfile() {
     return http.get('/api/auth/profile')

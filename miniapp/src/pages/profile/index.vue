@@ -38,9 +38,9 @@
 
     <!-- 未登录提示 -->
     <view class="login-prompt" v-if="!isLoggedIn">
-      <text class="login-text">授权微信登录，解锁更多功能</text>
+      <text class="login-text">授权登录，解锁更多功能</text>
       <view class="login-btn" @tap="handleLogin">
-        <text>微信登录</text>
+        <text>{{ isH5Env ? '账号登录' : '微信登录' }}</text>
       </view>
     </view>
 
@@ -105,6 +105,11 @@ import { authApi } from '../../api'
 
 const userStore = useUserStore()
 const myStats = ref({ published: 0, favorites: 0, groupbuy: 0 })
+
+const isH5Env = ref(false)
+// #ifdef H5
+isH5Env.value = true
+// #endif
 
 const isLoggedIn = computed(() => userStore.isLoggedIn())
 const userInfo = computed(() => userStore.userInfo || {})
