@@ -183,6 +183,37 @@ goods.post('/', authMiddleware, async (c) => {
   }
 })
 
+// 更新商品（通用：下架/上架/编辑）
+goods.put('/:id', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user') as JwtPayload
+    const { id } = c.req.param()
+    const body = await c.req.json()
+
+    const res = await getCollection('goods').doc(id).get()
+    const good = extractDoc(res.data)
+    if (!good || !good._id) return c.json({ code: 404, message: '商品不存在' }, 404)
+    if (good.publisherId !== user.openid) return c.json({ code: 403, message: '只能修改自己的商品' }, 403)
+
+    // 可更新字段
+    const allowedFields = ['title', 'description', 'price', 'originalPrice', 'condition', 'category', 'location', 'contactWechat', 'contactPhone', 'images', 'status']
+    const updateData: any = { updatedAt: new Date() }
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        // status 只允许 on_sale / off_shelf
+        if (field === 'status' && !['on_sale', 'off_shelf'].includes(body[field])) continue
+        updateData[field] = body[field]
+      }
+    }
+
+    await getCollection('goods').doc(id).update(updateData)
+
+    return c.json({ code: 0, message: 'success' })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message }, 500)
+  }
+})
+
 // 标记已卖出
 goods.put('/:id/sell', authMiddleware, async (c) => {
   try {
@@ -215,62 +246,6 @@ goods.put('/:id/sell', authMiddleware, async (c) => {
       content: `「${good.title}」标记为已卖出`,
       targetId: id,
     })
-
-    return c.json({ code: 0, message: 'success' })
-  } catch (e: any) {
-    return c.json({ code: 500, message: e.message }, 500)
-  }
-})
-
-// 下架/上架商品
-goods.put('/:id/shelf', authMiddleware, async (c) => {
-  try {
-    const user = c.get('user') as JwtPayload
-    const { id } = c.req.param()
-    const { status } = await c.req.json()
-
-    if (!['on_sale', 'off_shelf'].includes(status)) {
-      return c.json({ code: 400, message: '无效状态' }, 400)
-    }
-
-    const res = await getCollection('goods').doc(id).get()
-    const good = extractDoc(res.data)
-    if (!good || !good._id) return c.json({ code: 404, message: '商品不存在' }, 404)
-    if (good.publisherId !== user.openid) return c.json({ code: 403, message: '只能操作自己的商品' }, 403)
-
-    await getCollection('goods').doc(id).update({
-      status,
-      updatedAt: new Date(),
-    })
-
-    return c.json({ code: 0, message: 'success' })
-  } catch (e: any) {
-    return c.json({ code: 500, message: e.message }, 500)
-  }
-})
-
-// 更新商品信息（仅下架状态可编辑）
-goods.put('/:id', authMiddleware, async (c) => {
-  try {
-    const user = c.get('user') as JwtPayload
-    const { id } = c.req.param()
-    const body = await c.req.json()
-
-    const res = await getCollection('goods').doc(id).get()
-    const good = extractDoc(res.data)
-    if (!good || !good._id) return c.json({ code: 404, message: '商品不存在' }, 404)
-    if (good.publisherId !== user.openid) return c.json({ code: 403, message: '只能修改自己的商品' }, 403)
-
-    // 可更新字段
-    const allowedFields = ['title', 'description', 'price', 'originalPrice', 'condition', 'category', 'location', 'contactWechat', 'contactPhone', 'images', 'status']
-    const updateData: any = { updatedAt: new Date() }
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) {
-        updateData[field] = body[field]
-      }
-    }
-
-    await getCollection('goods').doc(id).update(updateData)
 
     return c.json({ code: 0, message: 'success' })
   } catch (e: any) {

@@ -87,20 +87,29 @@
       </template>
       <!-- 卖家视角 -->
       <template v-else>
-        <view v-if="detail.status === 'on_sale'" class="off-shelf-btn" @tap="toggleShelf(false)">
-          <text>下架</text>
-        </view>
-        <view v-if="detail.status === 'off_shelf'" class="on-shelf-btn" @tap="toggleShelf(true)">
-          <text>重新上架</text>
-        </view>
-        <view v-if="detail.status === 'off_shelf'" class="edit-btn-bar" @tap="goEdit">
-          <text>编辑</text>
-        </view>
-        <view v-if="detail.status === 'on_sale'" class="sell-btn" @tap="markSold">
-          <text>已卖出</text>
-        </view>
-        <view class="delete-btn" @tap="deleteGoods">
-          <text>删除</text>
+        <view class="seller-actions">
+          <!-- 在售状态 -->
+          <template v-if="detail.status === 'on_sale'">
+            <view class="action-btn off-shelf" @tap="toggleShelf(false)">
+              <text>下架</text>
+            </view>
+            <view class="action-btn sold" @tap="markSold">
+              <text>已卖出</text>
+            </view>
+          </template>
+          <!-- 下架状态 -->
+          <template v-if="detail.status === 'off_shelf'">
+            <view class="action-btn on-shelf" @tap="toggleShelf(true)">
+              <text>重新上架</text>
+            </view>
+            <view class="action-btn edit" @tap="goEdit">
+              <text>编辑</text>
+            </view>
+          </template>
+          <!-- 删除始终显示 -->
+          <view class="action-btn delete" @tap="deleteGoods">
+            <text>删除</text>
+          </view>
         </view>
       </template>
     </view>
@@ -316,20 +325,14 @@ $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
 .contact-action { flex: 1; height: 88rpx; background: $accent; border-radius: $radius;
   display: flex; align-items: center; justify-content: center;
   text { color: #fff; font-size: 30rpx; font-weight: 600; } }
-.sell-btn { height: 88rpx; background: $success; border-radius: $radius;
+.seller-actions { flex: 1; display: flex; gap: 16rpx; flex-wrap: wrap; }
+.action-btn { flex: 1; min-width: 160rpx; height: 80rpx; border-radius: $radius;
   display: flex; align-items: center; justify-content: center;
-  text { color: #fff; font-size: 30rpx; font-weight: 600; } }
-.off-shelf-btn { height: 88rpx; background: $surface; border-radius: $radius; border: 2rpx solid $border;
-  display: flex; align-items: center; justify-content: center;
-  text { color: $text-sec; font-size: 28rpx; font-weight: 600; } }
-.on-shelf-btn { height: 88rpx; background: $accent; border-radius: $radius;
-  display: flex; align-items: center; justify-content: center;
-  text { color: #fff; font-size: 28rpx; font-weight: 600; } }
-.edit-btn-bar { height: 88rpx; background: $bg; border-radius: $radius; border: 2rpx solid $accent;
-  display: flex; align-items: center; justify-content: center;
-  text { color: $accent; font-size: 28rpx; font-weight: 600; } }
-.delete-btn { height: 88rpx; background: $surface; border-radius: $radius;
-  border: 2rpx solid $border;
-  display: flex; align-items: center; justify-content: center;
-  text { color: $error; font-size: 28rpx; font-weight: 600; } }
+  text { font-size: 28rpx; font-weight: 600; }
+  &.off-shelf { background: $surface; border: 2rpx solid $border; text { color: $text-sec; } }
+  &.sold { background: $success; text { color: #fff; } }
+  &.on-shelf { background: $accent; text { color: #fff; } }
+  &.edit { background: $bg; border: 2rpx solid $accent; text { color: $accent; } }
+  &.delete { background: $surface; border: 2rpx solid $border; text { color: $error; } }
+}
 </style>
