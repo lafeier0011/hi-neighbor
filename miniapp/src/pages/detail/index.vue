@@ -1,7 +1,6 @@
 <template>
   <view class="page">
     <view class="nav-bar">
-      <text class="nav-back" @tap="goBack">←</text>
       <text class="nav-title">商品详情</text>
       <text class="nav-action" @tap="share">分享</text>
     </view>
@@ -78,8 +77,8 @@
     <view class="bottom-bar">
       <!-- 买家视角 -->
       <template v-if="!isOwner">
-        <view class="fav-btn" @tap="toggleFav">
-          <text>{{ favorited ? '♥' : '♡' }}</text>
+        <view class="fav-btn" :class="{ active: favorited }" @tap="toggleFav">
+          <text class="fav-icon">{{ favorited ? '❤' : '☆' }}</text>
         </view>
         <view class="contact-action" @tap="copyContact">
           <text>联系卖家</text>
@@ -120,8 +119,25 @@ async function fetchDetail() {
   } catch {}
 }
 
-function goBack() { uni.navigateBack() }
-function share() { /* TODO */ }
+function share() {
+  // #ifdef H5
+  if (navigator.share) {
+    navigator.share({
+      title: detail.value.title || '邻趣集市好物推荐',
+      text: `${detail.value.title} ¥${detail.value.price}`,
+      url: window.location.href,
+    }).catch(() => {})
+  } else {
+    uni.setClipboardData({
+      data: window.location.href,
+      success: () => uni.showToast({ title: '链接已复制', icon: 'success' }),
+    })
+  }
+  // #endif
+  // #ifndef H5
+  uni.showToast({ title: '请截图分享给好友', icon: 'none' })
+  // #endif
+}
 
 function copy(val: string) {
   uni.setClipboardData({
@@ -234,7 +250,11 @@ $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
 }
 .fav-btn { width: 88rpx; height: 88rpx; border: 2rpx solid $border; border-radius: $radius;
-  display: flex; align-items: center; justify-content: center; font-size: 40rpx; }
+  display: flex; align-items: center; justify-content: center;
+  &.active { border-color: $accent; background: $accent-light; }
+}
+.fav-icon { font-size: 36rpx; color: $text-tri; }
+.fav-btn.active .fav-icon { color: $accent; }
 .contact-action { flex: 1; height: 88rpx; background: $accent; border-radius: $radius;
   display: flex; align-items: center; justify-content: center;
   text { color: #fff; font-size: 30rpx; font-weight: 600; } }

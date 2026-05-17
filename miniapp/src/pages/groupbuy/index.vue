@@ -50,14 +50,27 @@
 
         <!-- 按钮 -->
         <view
+          v-if="item.status === 'pending' && !item.participants?.includes(userStore.userInfo?.openid)"
           class="join-btn"
-          :class="{ disabled: item.status !== 'pending' || item.participants?.includes(userStore.userInfo?.openid) }"
           @tap.stop="joinGroup(item)"
+        >
+          <text>参团</text>
+        </view>
+        <view
+          v-else-if="item.status === 'pending' && item.participants?.includes(userStore.userInfo?.openid) && item.organizerId !== userStore.userInfo?.openid"
+          class="join-btn cancel"
+          @tap.stop="leaveGroup(item)"
+        >
+          <text>取消参团</text>
+        </view>
+        <view
+          v-else
+          class="join-btn disabled"
         >
           <text>{{ joinBtnText(item) }}</text>
         </view>
 
-        <text v-if="item.deadline" class="countdown">剩余 {{ formatDeadline(item.deadline) }}</text>
+        <text v-if="item.deadline && item.status === 'pending'" class="countdown">剩余 {{ formatDeadline(item.deadline) }}</text>
       </view>
 
       <view class="load-tip">
@@ -170,6 +183,22 @@ async function joinGroup(item: any) {
   } catch {}
 }
 
+async function leaveGroup(item: any) {
+  uni.showModal({
+    title: '确认',
+    content: '确定要退出该拼团吗？',
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await groupbuyApi.leave(item._id)
+          uni.showToast({ title: '已退出', icon: 'success' })
+          fetchList(true)
+        } catch {}
+      }
+    },
+  })
+}
+
 onMounted(() => fetchList(true))
 
 // 从发起拼团页返回时自动刷新
@@ -179,7 +208,7 @@ onShow(() => fetchList(true))
 <style scoped lang="scss">
 $bg: #ffffff; $surface: #f8f5f1; $border: #ebe4da; $text: #2d2a26;
 $text-sec: #6b6b6b; $text-tri: #999; $accent: #c2703e; $accent-light: #fdf5ee;
-$success: #3a7d5c; $radius: 16rpx;
+$success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
 
 .page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; position: relative; }
 
@@ -220,6 +249,8 @@ $success: #3a7d5c; $radius: 16rpx;
   display: flex; align-items: center; justify-content: center;
   text { color: #fff; font-size: 28rpx; font-weight: 600; }
   &.disabled { background: $surface; text { color: $text-tri; } }
+  &.cancel { background: $bg; border: 2rpx solid $error;
+    text { color: $error; } }
 }
 .countdown { text-align: center; font-size: 22rpx; color: $text-tri; margin-top: 12rpx; display: block; }
 .load-tip { text-align: center; padding: 24rpx; font-size: 24rpx; color: $text-tri; }

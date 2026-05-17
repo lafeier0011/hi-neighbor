@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
+import { onReachBottom, onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { goodsApi, locationApi } from '../../api'
 
 const currentCommunity = ref('全部社区')
@@ -301,6 +301,13 @@ onMounted(async () => {
     communities.value = ['全部社区', ...communityList.map((l: any) => l.name)]
   } catch {}
   fetchGoods(true)
+})
+
+// 从发布页返回时自动刷新
+onShow(() => {
+  if (!skeletonLoading.value) {
+    fetchGoods(true)
+  }
 })
 </script>
 

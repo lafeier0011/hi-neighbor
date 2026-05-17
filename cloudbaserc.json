@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "envId": "bp-insight-d8gm1oyz67190a864",
+  "functionRoot": "functions",
+  "functions": [
+    {
+      "name": "api",
+      "timeout": 10,
+      "runtime": "Nodejs18.15",
+      "handler": "index.main",
+      "memorySize": 256,
+      "type": "http",
+      "envVariables": {
+        "JWT_SECRET": "hi-neighbor-jwt-secret-2026"
+      }
+    }
+  ]
+}

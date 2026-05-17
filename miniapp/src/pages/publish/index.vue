@@ -2,7 +2,6 @@
   <view class="page">
     <!-- Nav -->
     <view class="nav-bar">
-      <text class="nav-back" @tap="goBack">←</text>
       <text class="nav-title">发布</text>
       <text class="nav-action">草稿箱</text>
     </view>
@@ -251,9 +250,7 @@ function selectLocation(name: string) {
   showLocationPicker.value = false
 }
 
-function goBack() {
-  uni.navigateBack()
-}
+// goBack removed - use system back
 
 function validate(): boolean {
   // 清空错误
