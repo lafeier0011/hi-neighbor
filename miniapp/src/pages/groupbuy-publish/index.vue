@@ -2,9 +2,7 @@
   <view class="page">
     <!-- Nav -->
     <view class="nav-bar">
-      <text class="nav-back" @tap="goBack">←</text>
       <text class="nav-title">发起拼团</text>
-      <text class="nav-action" />
     </view>
 
     <scroll-view scroll-y class="form-scroll">
@@ -209,10 +207,6 @@ function changeTarget(delta: number) {
   }
 }
 
-function goBack() {
-  uni.navigateBack()
-}
-
 async function chooseImage() {
   const [, res] = await uni.chooseImage({ count: 9 - images.value.length, sizeType: ['compressed'] })
   if (res?.tempFilePaths) {
@@ -334,12 +328,10 @@ $radius: 16rpx;
 
 .page { min-height: 100vh; background: $bg; display: flex; flex-direction: column; overflow-x: hidden; }
 .nav-bar {
-  height: 88rpx; display: flex; align-items: center; justify-content: space-between;
+  height: 88rpx; display: flex; align-items: center; justify-content: center;
   padding: 0 32rpx; border-bottom: 2rpx solid $border;
 }
-.nav-back { font-size: 36rpx; color: $text; }
 .nav-title { font-size: 32rpx; font-weight: 600; }
-.nav-action { width: 60rpx; }
 
 .form-scroll { flex: 1; }
 

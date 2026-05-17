@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { onPullDownRefresh } from '@dcloudio/uni-app'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { groupbuyApi } from '../../api'
 import { useUserStore } from '../../store/user'
 
@@ -171,6 +171,9 @@ async function joinGroup(item: any) {
 }
 
 onMounted(() => fetchList(true))
+
+// 从发起拼团页返回时自动刷新
+onShow(() => fetchList(true))
 </script>
 
 <style scoped lang="scss">

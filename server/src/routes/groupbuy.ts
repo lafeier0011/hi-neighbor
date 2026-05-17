@@ -217,10 +217,23 @@ groupbuy.get('/:id', async (c) => {
       }
     }
 
+    // 查询参与者信息
+    let participantInfos: any[] = []
+    if (gb.participants && gb.participants.length > 0) {
+      const db = getCollection('users').db
+      const cmd = db.command
+      const userRes = await getCollection('users').where({ openid: cmd.in(gb.participants) }).get()
+      participantInfos = (userRes.data || []).map((u: any) => ({
+        openid: u.openid,
+        nickname: u.nickname || '微信用户',
+        avatar: u.avatar || '',
+      }))
+    }
+
     return c.json({
       code: 0,
       message: 'success',
-      data: { _id: gb._id, title: gb.title, description: gb.description, originalPrice: gb.originalPrice, groupPrice: gb.groupPrice, targetCount: gb.targetCount, deadline: gb.deadline, images: gb.images, category: gb.category, contactWechat: gb.contactWechat, contactPhone: gb.contactPhone, organizerId: gb.organizerId, organizerInfo: gb.organizerInfo, currentCount: gb.currentCount, participants: gb.participants, status: gb.status, createdAt: gb.createdAt, updatedAt: gb.updatedAt, isJoined },
+      data: { _id: gb._id, title: gb.title, description: gb.description, originalPrice: gb.originalPrice, groupPrice: gb.groupPrice, targetCount: gb.targetCount, deadline: gb.deadline, images: gb.images, category: gb.category, contactWechat: gb.contactWechat, contactPhone: gb.contactPhone, organizerId: gb.organizerId, organizerInfo: gb.organizerInfo, currentCount: gb.currentCount, participants: gb.participants, participantInfos, status: gb.status, createdAt: gb.createdAt, updatedAt: gb.updatedAt, isJoined },
     })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message }, 500)

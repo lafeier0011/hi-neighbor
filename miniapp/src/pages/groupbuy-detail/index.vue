@@ -3,9 +3,7 @@
     <!-- Nav -->
     <view class="nav-bar">
       <view class="nav-bar-inner">
-        <text class="nav-back" @tap="goBack">←</text>
         <text class="nav-title">拼团详情</text>
-        <text class="nav-action" />
       </view>
     </view>
 
@@ -56,14 +54,21 @@
           </view>
         </view>
 
-        <!-- 参与人头像 -->
+        <!-- 参与人列表 -->
         <view class="avatar-row">
-          <view v-for="i in Math.min(detail.currentCount, 8)" :key="i" class="avatar" />
-          <view v-if="detail.currentCount < detail.targetCount" class="avatar empty">
-            <text class="avatar-plus">+</text>
+          <view v-for="(p, i) in detail.participantInfos" :key="i" class="participant-item">
+            <image v-if="p.avatar" :src="p.avatar" class="avatar has-img" mode="aspectFill" />
+            <view v-else class="avatar">{{ (p.nickname || '微')[0] }}</view>
+            <text class="participant-name">{{ p.nickname || '微信用户' }}</text>
           </view>
-          <text class="avatar-hint">{{ detail.currentCount >= detail.targetCount ? '已满员' : `还差${detail.targetCount - detail.currentCount}人` }}</text>
+          <view v-if="detail.currentCount < detail.targetCount" class="participant-item">
+            <view class="avatar empty">
+              <text class="avatar-plus">+</text>
+            </view>
+            <text class="participant-name placeholder">等你加入</text>
+          </view>
         </view>
+        <text class="avatar-hint">{{ detail.currentCount >= detail.targetCount ? '已满员' : `还差${detail.targetCount - detail.currentCount}人` }}</text>
       </view>
 
       <view class="section-divider" />
@@ -221,8 +226,6 @@ function startCountdown() {
   countdownTimer = setInterval(updateCountdown, 1000)
 }
 
-function goBack() { uni.navigateBack() }
-
 async function fetchDetail() {
   if (!gbId.value) return
   try {
@@ -293,11 +296,9 @@ $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
   padding-top: var(--status-bar-height, 44px);
   border-bottom: 2rpx solid $border;
 }
-.nav-bar-inner { height: 88rpx; display: flex; align-items: center; justify-content: space-between;
+.nav-bar-inner { height: 88rpx; display: flex; align-items: center; justify-content: center;
   padding: 0 32rpx; }
-.nav-back { font-size: 36rpx; color: $text; }
 .nav-title { font-size: 32rpx; font-weight: 600; }
-.nav-action { width: 60rpx; }
 
 .content { flex: 1; height: 0; }
 .img-swiper { height: 480rpx; }
@@ -333,11 +334,17 @@ $success: #3a7d5c; $error: #c0392b; $radius: 16rpx;
 .progress-num { font-size: 28rpx; font-weight: 600; color: $text; }
 .progress-pct { font-size: 26rpx; color: $accent; font-weight: 600; }
 
-.avatar-row { display: flex; align-items: center; flex-wrap: wrap; }
-.avatar { width: 56rpx; height: 56rpx; border-radius: 50%; background: $border; margin-right: -8rpx; border: 4rpx solid $bg;
-  &.empty { background: $surface; border: 2rpx dashed $border; display: flex; align-items: center; justify-content: center; } }
+.avatar-row { display: flex; flex-wrap: wrap; gap: 20rpx; }
+.participant-item { display: flex; flex-direction: column; align-items: center; width: 96rpx; }
+.avatar { width: 56rpx; height: 56rpx; border-radius: 50%; background: $border; display: flex; align-items: center; justify-content: center;
+  font-size: 22rpx; color: $text-sec; font-weight: 500;
+  &.has-img { border: none; background: transparent; }
+  &.empty { background: $surface; border: 2rpx dashed $border; } }
 .avatar-plus { font-size: 24rpx; color: $text-tri; }
-.avatar-hint { font-size: 24rpx; color: $text-tri; margin-left: 20rpx; }
+.participant-name { font-size: 20rpx; color: $text-sec; margin-top: 6rpx; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 96rpx;
+  &.placeholder { color: $text-tri; } }
+.avatar-hint { font-size: 24rpx; color: $text-tri; margin-top: 12rpx; display: block; }
 
 .countdown-wrap { padding: 20rpx 0; }
 .countdown-text { font-size: 32rpx; font-weight: 600; color: $accent; letter-spacing: 2rpx; }
